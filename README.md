@@ -17,6 +17,11 @@ Then run the following commands to start:
 npm install
 npm start
 ```
+### TODO
+- [x] Monitor for cart page
+- [ ] Auto ATC
+- [ ] Captcha harvesting
+- [ ] Headless mode
 
 ## License
 
