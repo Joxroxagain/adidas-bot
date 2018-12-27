@@ -6,7 +6,7 @@ Launches instances of puppeteer browsers to a specified url and notifies you whe
 Clone or download the repository
 
 ```
-https://github.com/Joxroxagain/adidas-bruteforcer.git
+git clone https://github.com/Joxroxagain/adidas-bruteforcer.git
 ```
 Navigate to the folder to which you downloaded the files.
 Edit the config file as you wish.
@@ -14,7 +14,6 @@ Then run the following commands:
 ```
 npm install
 npm start
-
 ```
 ## License
 
