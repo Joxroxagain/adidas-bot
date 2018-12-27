@@ -46,15 +46,21 @@ class Bot {
             // Catch page reloads 
             else if (response.url() == this.url) {
 
-                const sizeSelector = await page.$x("//*[text() = 'Select size']");
-                const cartButton = await page.$x("//*[text() = 'Add To Bag']");
+                if (config.alertOnCartPage) {
+                    await page.waitForNavigation()
 
-                if (sizeSelector.length > 0 || cartButton.length > 0) {
-                    notifier.notify({
-                        'title': 'Past Splash!',
-                        'message': 'One or more of the browsers appear to have past the splash page.',
-                    });
+                    const sizeSelector = await page.$x("//*[text() = 'Select size']");
+                    const cartButton = await page.$x("//*[text() = 'Add To Bag']");
+    
+                    if (sizeSelector.length > 0 || cartButton.length > 0) {
+    
+                        notifier.notify({
+                            'title': 'Past Splash!',
+                            'message': 'One or more of the browsers appear to have past the splash page.',
+                        });
+                    }
                 }
+                
             }
         });
 
