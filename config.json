@@ -1,7 +1,6 @@
 {
+    "url": "https://www.google.com/recaptcha/api2/demo",
     "taskCount": 10,
     "randomUserAgent": true,
-    "autoCart": true,
-    "autoCartSizes": {},
     "alertOnCartPage": true
 }

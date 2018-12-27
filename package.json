@@ -4,6 +4,7 @@
   "description": "Launches browsers with unique sessions for bruteforcing adidas splash pages.",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "test": "node test.js"
   },
   "repository": {
