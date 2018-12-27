@@ -1,0 +1,7 @@
+{
+    "taskCount": 10,
+    "randomUserAgent": true,
+    "autoCart": true,
+    "autoCartSizes": {},
+    "alertOnCartPage": true
+}
