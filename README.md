@@ -18,12 +18,13 @@ npm install
 npm start
 ```
 ### TODO
-- [ ] Notify on cart page
+- [x] Notify on cart page
 - [ ] Auto ATC
-- [ ] Captcha harvesting
+- [ ] Captcha harvesting?
 - [ ] Headless mode
-- [ ] Scheduled refresh
+- [ ] Scheduled release refresh
 - [ ] Save cookies on cart page for transfer
+- [ ] Stock monitor
 
 ## License
 
