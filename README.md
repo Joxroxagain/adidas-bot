@@ -19,10 +19,12 @@ npm start
 ```
 ### TODO
 - [x] Monitor for cart page
+- [x] Notify on cart page
 - [ ] Auto ATC
 - [ ] Captcha harvesting
 - [ ] Headless mode
 - [ ] Scheduled refresh
+
 
 ## License
 
