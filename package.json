@@ -1,0 +1,27 @@
+{
+  "name": "adidas-browser-launcher",
+  "version": "1.0.0",
+  "description": "Launches browsers with unique sessions for bruteforcing adidas splash pages.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Joxroxagain/adidas-bruteforcer.git"
+  },
+  "keywords": [
+    "adidas",
+    "yeezy",
+    "bot",
+    "brute",
+    "queue",
+    "bypass"
+  ],
+  "author": "Joe Scott",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Joxroxagain/adidas-bruteforcer/issues"
+  },
+  "homepage": "https://github.com/Joxroxagain/adidas-bruteforcer#readme"
+}
