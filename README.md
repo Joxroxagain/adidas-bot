@@ -24,7 +24,7 @@ npm start
 - [ ] Captcha harvesting
 - [ ] Headless mode
 - [ ] Scheduled refresh
-
+- [ ] Save cookies on cart page for transfer
 
 ## License
 
