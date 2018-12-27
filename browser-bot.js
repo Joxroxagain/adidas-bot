@@ -4,16 +4,14 @@ const UserAgent = require('user-agents');
 const config = require("./config.json");
 
 class Bot {
-    constructor(pid) {
-        this.pid = pid;
+    constructor() {
+        this.browser = null;
     }
 
-    async startBot() {
-
-        // return;
+    async start() {
 
         // Launch the browser in headless mode and set up a page.
-        const browser = await puppeteer.launch({
+        this.browser = await puppeteer.launch({
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
@@ -27,7 +25,7 @@ class Bot {
 
         const context = await browser.createIncognitoBrowserContext();
 
-        const page = await context.newPage();
+        const page = await browser.newPage();
 
         // Prepare for the tests (not yet implemented).
         await preparePageForTests(page);
@@ -89,7 +87,11 @@ class Bot {
         // browser.close();
     }
 
+    async stop() {
+        await this.browser.close();
+    }
 }
+
 
 const preparePageForTests = async (page) => {
     // Pass the User-Agent Test.
@@ -312,7 +314,6 @@ const sendData = async (page) => {
     console.log(JSON.stringify(resp, null, 2));
 
 }
-
 
 
 module.exports = Bot;
