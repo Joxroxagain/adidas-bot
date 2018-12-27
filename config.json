@@ -1,6 +1,9 @@
 {
     "url": "https://www.adidas.com/yeezy",
-    "taskCount": 10,
+    "taskCount": 2,
+    "startUpDelayInterval": 2000,
     "randomUserAgent": true,
-    "alertOnCartPage": true
+    "alertOnCartPage": true,
+    "windowHeight": 400,
+    "windowWidth": 600
 }

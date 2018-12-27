@@ -28,7 +28,7 @@ api.updateLog = (data) => {
     console.log(data)
 }
 
-api.updateSizes= (data) => {
+api.updateSizes = (data) => {
     console.log(t.toString())
     console.log(data)
 }

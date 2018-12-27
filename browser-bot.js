@@ -8,18 +8,26 @@ const notifier = require('node-notifier');
 class Bot {
     constructor() {
         this.browser = null;
+        this.url = '';
         this.isNotified = false;
     }
 
     async start() {
+        const width = config.windowWidth;
+        const height = config.windowHeight;
 
         // Launch the browser in headless mode and set up a page.
         this.browser = await puppeteer.launch({
-            args: ['--no-sandbox'],
+            args: [
+                '--no-sandbox',
+                `--window-size=${width},${height}`
+            ],
             headless: false,
         });
 
         const page = (await this.browser.pages())[0];
+
+        // await page.setViewport({ width, height })
 
         // Prepare for the tests (not yet implemented).
         await preparePageForTests(page);
@@ -36,15 +44,24 @@ class Bot {
                 // getBestSize(sizes);
             }
             // Catch page reloads 
-            else if (response.url().includes("yeezy")) {
-                console.log(response.url())
-                await checkPageStatus(page);
+            else if (response.url() == this.url) {
+
+                const sizeSelector = await page.$x("//*[text() = 'Select size']");
+                const cartButton = await page.$x("//*[text() = 'Add To Bag']");
+
+                if (sizeSelector.length > 0 || cartButton.length > 0) {
+                    notifier.notify({
+                        'title': 'Past Splash!',
+                        'message': 'One or more of the browsers appear to have past the splash page.',
+                    });
+                }
             }
         });
 
         // Navigate to the page
         try {
             await page.goto(config.url);
+            this.url = await page.url();
         } catch (err) {
             console.log(err)
         }
@@ -155,20 +172,5 @@ const preparePageForTests = async (page) => {
         });
     });
 }
-
-const checkPageStatus = async (page) => {
-
-    const sizeSelector = await page.$x("//*[text() = 'Select size']");
-    const cartButton = await page.$x("//*[text() = 'Add To Bag']");
-
-    if (sizeSelector.length > 0 || cartButton.length > 0) {
-        notifier.notify({
-            'title': 'Past Splash!',
-            'message': 'One or more of the browsers appear to have past the splash page.',
-        });
-        
-    }
-}
-
 
 module.exports = Bot;
