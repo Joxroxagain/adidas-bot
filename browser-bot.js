@@ -87,52 +87,52 @@ const preparePageForTests = async (page) => {
     }
     await page.setUserAgent(userAgent);
 
-    // Block somne stuff to make loading faster
-    const blockedResourceTypes = [
-        'media',
-        'font',
-        'texttrack',
-        'object',
-        'beacon',
-        'csp_report',
-        'imageset',
-    ];
-    const skippedResources = [
-        'quantserve',
-        'adzerk',
-        'doubleclick',
-        'adition',
-        'exelator',
-        'sharethrough',
-        'cdn.api.twitter',
-        'google-analytics',
-        'googletagmanager',
-        'fontawesome',
-        'facebook',
-        'analytics',
-        'optimizely',
-        'clicktale',
-        'mixpanel',
-        'zedo',
-        'clicksor',
-        'tiqcdn',
-    ];
+    // // Block somne stuff to make loading faster
+    // const blockedResourceTypes = [
+    //     'media',
+    //     'font',
+    //     'texttrack',
+    //     'object',
+    //     'beacon',
+    //     'csp_report',
+    //     'imageset',
+    // ];
+    // const skippedResources = [
+    //     'quantserve',
+    //     'adzerk',
+    //     'doubleclick',
+    //     'adition',
+    //     'exelator',
+    //     'sharethrough',
+    //     'cdn.api.twitter',
+    //     'google-analytics',
+    //     'googletagmanager',
+    //     'fontawesome',
+    //     'facebook',
+    //     'analytics',
+    //     'optimizely',
+    //     'clicktale',
+    //     'mixpanel',
+    //     'zedo',
+    //     'clicksor',
+    //     'tiqcdn',
+    // ];
 
     //Enable request interception
-    await page.setRequestInterception(true);
+    // await page.setRequestInterception(true);
 
-    page.on('request', request => {
-        const requestUrl = request._url.split('?')[0].split('#')[0];
+    // page.on('request', request => {
+    //     const requestUrl = request._url.split('?')[0].split('#')[0];
 
-        if (
-            blockedResourceTypes.indexOf(request.resourceType()) !== -1 ||
-            skippedResources.some(resource => requestUrl.indexOf(resource) !== -1)
-        ) {
-            request.abort();
-        } else {
-            request.continue();
-        }
-    });
+    //     if (
+    //         blockedResourceTypes.indexOf(request.resourceType()) !== -1 ||
+    //         skippedResources.some(resource => requestUrl.indexOf(resource) !== -1)
+    //     ) {
+    //         request.abort();
+    //     } else {
+    //         request.continue();
+    //     }
+    // });
 
     // Pass the Webdriver Test.
     await page.evaluateOnNewDocument(() => {
