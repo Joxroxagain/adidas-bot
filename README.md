@@ -23,7 +23,7 @@ npm start
 - [ ] Captcha harvesting?
 - [ ] Headless mode
 - [ ] Scheduled release refresh
-- [ ] Save cookies on cart page for transfer
+- [ ] Save cookies on cart for use in requests
 - [ ] Stock monitor
 
 ## License
