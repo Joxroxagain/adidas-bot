@@ -18,7 +18,7 @@ npm install
 npm start
 ```
 ### TODO
-- [] Notify on cart page
+- [ ] Notify on cart page
 - [ ] Auto ATC
 - [ ] Captcha harvesting
 - [ ] Headless mode
