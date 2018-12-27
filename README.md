@@ -22,6 +22,7 @@ npm start
 - [ ] Auto ATC
 - [ ] Captcha harvesting
 - [ ] Headless mode
+- [ ] Scheduled refresh
 
 ## License
 
