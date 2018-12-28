@@ -1,6 +1,7 @@
 {
-    "url": "https://www.adidas.com/yeezy",
-    "taskCount": 20,
+    "url" : "https://www.adidas.com/us/ultraboost-shoes/BB6168.html",
+    "taskCount": 10,
+    "headless" : false,
     "startUpDelayInterval": 15000,
     "randomUserAgent": true,
     "alertOnCartPage": true,

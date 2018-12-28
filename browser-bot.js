@@ -1,15 +1,22 @@
 const puppeteer = require('puppeteer');
 const fetch = require('node-fetch')
 const UserAgent = require('user-agents');
-const config = require("./config.json");
 const notifier = require('node-notifier');
+const path = require('path');
+const GOOGLE_COOKIES = require('./cookies.json');
+const logger = require('./logger');
+const _ = require('lodash');
 
 
-class Bot {
-    constructor() {
-        this.browser = null;
-        this.url = '';
-        this.isNotified = false;
+let instance;
+let config;
+let url;
+
+
+module.exports = class Bot {
+    constructor(i, c) {
+        instance = i;
+        config = c;
     }
 
     async start() {
@@ -22,61 +29,113 @@ class Bot {
                 '--no-sandbox',
                 `--window-size=${width},${height}`
             ],
-            headless: false,
+            headless: config.headless,
+            ignoreHTTPSErrors: true,
+            // userDataDir: path.resolve('tmp', 'chrome_' + this.instance),
         });
 
+
+        // Add google cookies to browser if provided
+        if (Object.keys(GOOGLE_COOKIES).length != 0) {
+
+            const cookiePage = await this.browser.newPage();
+            cookiePage.setDefaultNavigationTimeout(60000);
+
+            await cookiePage.goto('http://www.google.com/404');
+            for (let cookie of GOOGLE_COOKIES) {
+                await cookiePage.setCookie({
+                    name: cookie.name,
+                    value: cookie.value
+                });
+            }
+            await cookiePage.close();
+
+        }
+
+        // Create main page
         const page = (await this.browser.pages())[0];
 
-        // await page.setViewport({ width, height })
+        // Enable interception
+
+        // await page.setViewport({
+        //     width: _.random(800, 1000),
+        //     height: _.random(600, 800)
+        // });
+
+        page.setDefaultNavigationTimeout(60000);
 
         // Prepare for the tests (not yet implemented).
-        await preparePageForTests(page);
+        await preparePageForTests(page, config);
 
-        // Handlers
-        page.on('response', async response => {
-            // Catch cart responses
-            if (response.url().endsWith("api/cart_items?sitePath=us")) {
-
-            }
-            // Catch availibility responses
-            else if (response.url().endsWith("availability?sitePath=us")) {
-                // var sizes = await response.json();
-                // getBestSize(sizes);
-            }
-            // Catch page reloads 
-            else if (response.url() == this.url) {
-
-                if (config.alertOnCartPage) {
-                    await page.waitForNavigation()
-
-                    const sizeSelector = await page.$x("//*[text() = 'Select size']");
-                    const cartButton = await page.$x("//*[text() = 'Add To Bag']");
-    
-                    if (sizeSelector.length > 0 || cartButton.length > 0) {
-    
-                        notifier.notify({
-                            'title': 'Past Splash!',
-                            'message': 'One or more of the browsers appear to have past the splash page.',
-                        });
-                    }
-                }
-                
-            }
-        });
+        // Set up listeners
+        await setListeners(page);
 
         // Navigate to the page
-        try {
-            await page.goto(config.url);
-            this.url = await page.url();
-        } catch (err) {
-            console.log(err)
+        while (true) {
+            try {
+                await page.goto(config.url);
+                url = await page.url();
+                break;
+            } catch (err) {
+                logger.error(instance, err);
+            }
         }
+
 
     }
 
     async stop() {
         await this.browser.close();
     }
+}
+
+
+// Contains event handlers which do the work
+const setListeners = async (page) => {
+
+    // Handlers
+    page.on('response', async response => {
+
+
+        // Catch cart responses
+        if (response.url().includes("api/cart_items")) {
+            
+        }
+        // Catch availibility responses
+        else if (response.url().includes("availability")) {
+            // var sizes = await response.json();
+            // getBestSize(sizes);
+        }
+        // Catch page reloads 
+        else if (response.url() == url) {
+
+            await page.waitForNavigation()
+
+            const sizeSelector = await page.$x("//*[text() = 'Select size']");
+            const cartButton = await page.$x("//*[text() = 'Add To Bag']");
+
+            if (sizeSelector.length > 0 || cartButton.length > 0) {
+
+                logger.success(instance);
+
+                if (config.alertOnCartPage) {
+
+                    notifier.notify({
+                        title: 'Adidas Bruteforcer',
+                        message: `Cart page on instance ${instance}}!`,
+                        sound: 'Hero',
+                        timeout: 60000
+                    }, async (err, res, data) => {
+                        if (res == 'activate') await page.bringToFront();
+                    });
+
+
+                }
+            }
+
+        }
+    });
+
 }
 
 const preparePageForTests = async (page) => {
@@ -131,5 +190,3 @@ const preparePageForTests = async (page) => {
         });
     });
 }
-
-module.exports = Bot;

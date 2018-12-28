@@ -1,22 +1,18 @@
 const config = require("./config.json");
 const Bot = require('./browser-bot.js');
+const logger = require('./logger.js');
 
 var bots = [];
+
+logger.intro(config.taskCount);
 
 (async () => {
 
     for (let index = 0; index < config.taskCount; index++) {
-        bots.push(new Bot());
+        bots.push(new Bot(index, config));
         setTimeout(function() {    
             bots[index].start();
         }, config.startUpDelayInterval * index);
     }
-
-    // if (config.autoRefreshAt != "") {
-    //     var eta_ms = new Date(2015, 0, 21, 17, 0).getTime() - Date.now();
-    //     var timeout = setTimeout(function(){
-
-    //     }, eta_ms);
-    // }
 
 })()
