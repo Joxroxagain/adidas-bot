@@ -10,6 +10,10 @@ git clone https://github.com/Joxroxagain/adidas-bruteforcer.git
 ```
 Navigate to the folder to which you downloaded the files.
 
+Create a file called ```cookies.json``` and either
+1) Enter '{}' to skip google login
+2) Or use the chrome extension EditThisCookie to export your google cookies as JSON and enter the output into this file
+
 Edit the config file as you wish.
 
 Then run the following commands to start:
@@ -19,6 +23,7 @@ npm start
 ```
 ### TODO
 - [x] Notify on cart page
+- [x] Google sign in to prevent captchas
 - [ ] Auto ATC
 - [ ] Captcha harvesting?
 - [ ] Headless mode
