@@ -19,6 +19,7 @@ npm start
 ```
 ### TODO
 - [x] Notify on cart page
+- [x] Google sign in to prevent captchas
 - [ ] Auto ATC
 - [ ] Captcha harvesting?
 - [ ] Headless mode
