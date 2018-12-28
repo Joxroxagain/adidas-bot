@@ -10,9 +10,7 @@ git clone https://github.com/Joxroxagain/adidas-bruteforcer.git
 ```
 Navigate to the folder to which you downloaded the files.
 
-Create a file called ```cookies.json``` and either
-1) Enter '{}' to skip google login
-2) Or use the chrome extension EditThisCookie to export your google cookies as JSON and enter the output into this file
+If you want to use the google login feature, ue the chrome extension EditThisCookie to export your google cookies as JSON and enter the output into the file ```cookies.json```
 
 Edit the config file as you wish.
 
