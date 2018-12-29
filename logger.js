@@ -10,6 +10,20 @@ process.stdin.setRawMode(true);
 
 let api = {};
 
+this.showLogs = false;
+this.clipboard = {
+	toggle: false,
+	hmac: '',
+	userAgent: ''
+};
+
+process.stdin.on('keypress', (char, key)  => {
+	if (key && key.ctrl && key.name == 'c') {
+		process.stdin.setRawMode(false);
+		console.log(chalk.red('Press Ctrl+C again to exit.'));
+	}
+});
+
 api.intro = function(instances) {
 	console.log(''); 
 	console.log(chalk.bgBlack.white('Adidas Bruteforcer '), chalk.bold(' v' + version));
@@ -26,7 +40,7 @@ api.error = function(instance, error) {
 };
 
 api.success = function(instance) {
-	console.log(chalk.green(`Through Splash on Instance ${instance}!`), chalk.dim('—'), chalk.dim(moment().format('hh:mm:ss')));
+	console.log(chalk.green(`Cart page on ${instance}!`), chalk.dim('—'), chalk.dim(moment().format('hh:mm:ss')));
 	console.log('');
 };
 

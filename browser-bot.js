@@ -66,10 +66,10 @@ module.exports = class Bot {
         page.setDefaultNavigationTimeout(60000);
 
         // Prepare for the tests (not yet implemented).
-        await preparePageForTests(page, config);
+        await this.preparePageForTests(page, config);
 
         // Set up listeners
-        await setListeners(page);
+        await this.setListeners(page);
 
         // Navigate to the page
         while (true) {
@@ -82,7 +82,6 @@ module.exports = class Bot {
             }
         }
 
-
     }
 
     async stop() {
@@ -90,7 +89,7 @@ module.exports = class Bot {
     }
 
     // Contains event handlers which do the work
-    setListeners = async (page) => {
+    async setListeners(page) {
 
         // Handlers
         page.on('response', async response => {
@@ -113,8 +112,42 @@ module.exports = class Bot {
                 const sizeSelector = await page.$x("//*[text() = 'Select size']");
                 const cartButton = await page.$x("//*[text() = 'Add To Bag']");
 
-                if (sizeSelector.length > 0 || cartButton.length > 0) {
+                // Transfer cookies to headed browser
+                let browser2 = null;
+                let page2 = null;
+                
+                if (config.headless) {
+                    const sessionCookies = await page.cookies()
 
+                    browser2 = await puppeteer.launch({
+                        args: [
+                            '--no-sandbox',
+                            '--disable-setuid-sandbox',
+                            '--disable-dev-shm-usage',
+                            '--disable-accelerated-2d-canvas',
+                            '--disable-gpu',
+                            '--window-size=1920x1080',
+                        ],
+                        headless: false,
+                    });
+
+                    page2 = (await browser2.pages())[0];
+
+                    page2.setViewport({ width: 0, height: 0 });
+
+                    await page2.setCookie(...sessionCookies);
+
+                    await this.preparePageForTests(page2);
+
+                    await page2.goto(url);
+
+                    this.browser.close();
+
+                }
+
+                // If on cart page
+                // if (sizeSelector.length > 0 || cartButton.length > 0) {
+                if (true) {
                     logger.success(instance);
 
                     if (config.alertOnCartPage) {
@@ -125,10 +158,14 @@ module.exports = class Bot {
                             sound: 'Hero',
                             timeout: 60000
                         }, async (err, res, data) => {
-                            if (res == 'activate') await page.bringToFront();
+                            if (res == 'activate') {
+                                if (!config.headless) {
+                                    await page.bringToFront();
+                                } else {
+                                    await page2.bringToFront();
+                                }
+                            }
                         });
-
-
                     }
                 }
 
@@ -137,7 +174,7 @@ module.exports = class Bot {
 
     }
 
-    preparePageForTests = async (page) => {
+    async preparePageForTests(page) {
         // Pass the User-Agent Test
         let userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36";
         if (config.randomUserAgent) {
