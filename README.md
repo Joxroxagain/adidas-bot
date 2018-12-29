@@ -34,7 +34,7 @@ npm start
 - [ ] Stock monitor
 
 ## Credits
-<img src="https://avatars.githubusercontent.com/u/30233933?v=3" width="100px;"/><br /><sub><b>bequadro</b></sub>](https://github.com/bequadro)<br />
+<sub><b>bequadro</b></sub>(https://github.com/bequadro)<br />
 
 ## License
 
