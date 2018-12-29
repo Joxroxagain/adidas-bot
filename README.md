@@ -28,13 +28,13 @@ npm start
 - [x] Autofill
 
 ### TODO
-- [ ] Auto ATC
+- [ ] Auto add to cart
 - [ ] Captcha harvesting?
 - [ ] Scheduled release refresh
 - [ ] Stock monitor
 
 ## Credits
-[<b>bequadro</b>](https://github.com/bequadro)
+[<b>bequadro</b>](https://github.com/bequadro/kju) for some code
 
 ## License
 
