@@ -14,6 +14,7 @@ let url;
 
 
 module.exports = class Bot {
+
     constructor(i, c) {
         instance = i;
         config = c;
@@ -87,106 +88,108 @@ module.exports = class Bot {
     async stop() {
         await this.browser.close();
     }
-}
+
+    // Contains event handlers which do the work
+    setListeners = async (page) => {
+
+        // Handlers
+        page.on('response', async response => {
 
 
-// Contains event handlers which do the work
-const setListeners = async (page) => {
+            // Catch cart responses
+            if (response.url().includes("api/cart_items")) {
 
-    // Handlers
-    page.on('response', async response => {
-
-
-        // Catch cart responses
-        if (response.url().includes("api/cart_items")) {
-            
-        }
-        // Catch availibility responses
-        else if (response.url().includes("availability")) {
-            // var sizes = await response.json();
-            // getBestSize(sizes);
-        }
-        // Catch page reloads 
-        else if (response.url() == url) {
-
-            await page.waitForNavigation()
-
-            const sizeSelector = await page.$x("//*[text() = 'Select size']");
-            const cartButton = await page.$x("//*[text() = 'Add To Bag']");
-
-            if (sizeSelector.length > 0 || cartButton.length > 0) {
-
-                logger.success(instance);
-
-                if (config.alertOnCartPage) {
-
-                    notifier.notify({
-                        title: 'Adidas Bruteforcer',
-                        message: `Cart page on instance ${instance}}!`,
-                        sound: 'Hero',
-                        timeout: 60000
-                    }, async (err, res, data) => {
-                        if (res == 'activate') await page.bringToFront();
-                    });
-
-
-                }
             }
+            // Catch availibility responses
+            else if (response.url().includes("availability")) {
+                // var sizes = await response.json();
+                // getBestSize(sizes);
+            }
+            // Catch page reloads 
+            else if (response.url() == url) {
 
-        }
-    });
+                await page.waitForNavigation()
 
-}
+                const sizeSelector = await page.$x("//*[text() = 'Select size']");
+                const cartButton = await page.$x("//*[text() = 'Add To Bag']");
 
-const preparePageForTests = async (page) => {
-    // Pass the User-Agent Test
-    let userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36";
-    if (config.randomUserAgent) {
-        userAgent = new UserAgent().toString();
+                if (sizeSelector.length > 0 || cartButton.length > 0) {
+
+                    logger.success(instance);
+
+                    if (config.alertOnCartPage) {
+
+                        notifier.notify({
+                            title: 'Adidas Bruteforcer',
+                            message: `Cart page on instance ${instance}}!`,
+                            sound: 'Hero',
+                            timeout: 60000
+                        }, async (err, res, data) => {
+                            if (res == 'activate') await page.bringToFront();
+                        });
+
+
+                    }
+                }
+
+            }
+        });
+
     }
-    await page.setUserAgent(userAgent);
 
-    // Pass the Webdriver Test.
-    await page.evaluateOnNewDocument(() => {
-        Object.defineProperty(navigator, 'webdriver', {
-            get: () => false,
+    preparePageForTests = async (page) => {
+        // Pass the User-Agent Test
+        let userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36";
+        if (config.randomUserAgent) {
+            userAgent = new UserAgent().toString();
+        }
+        await page.setUserAgent(userAgent);
+
+        // Pass the Webdriver Test.
+        await page.evaluateOnNewDocument(() => {
+            Object.defineProperty(navigator, 'webdriver', {
+                get: () => false,
+            });
         });
-    });
 
-    // Pass the Chrome Test.
-    await page.evaluateOnNewDocument(() => {
-        // We can mock this in as much depth as we need for the test.
-        window.navigator.chrome = {
-            runtime: {},
-            // etc.
-        };
-    });
-
-    // Pass the Permissions Test.
-    await page.evaluateOnNewDocument(() => {
-        const originalQuery = window.navigator.permissions.query;
-        return window.navigator.permissions.query = (parameters) => (
-            parameters.name === 'notifications' ?
-                Promise.resolve({ state: Notification.permission }) :
-                originalQuery(parameters)
-        );
-    });
-
-    // Pass the Plugins Length Test.
-    await page.evaluateOnNewDocument(() => {
-        // Overwrite the `plugins` property to use a custom getter.
-        Object.defineProperty(navigator, 'plugins', {
-            // This just needs to have `length > 0` for the current test,
-            // but we could mock the plugins too if necessary.
-            get: () => [1, 2, 3, 4, 5],
+        // Pass the Chrome Test.
+        await page.evaluateOnNewDocument(() => {
+            // We can mock this in as much depth as we need for the test.
+            window.navigator.chrome = {
+                runtime: {},
+                // etc.
+            };
         });
-    });
 
-    // Pass the Languages Test.
-    await page.evaluateOnNewDocument(() => {
-        // Overwrite the `plugins` property to use a custom getter.
-        Object.defineProperty(navigator, 'languages', {
-            get: () => ['en-US', 'en'],
+        // Pass the Permissions Test.
+        await page.evaluateOnNewDocument(() => {
+            const originalQuery = window.navigator.permissions.query;
+            return window.navigator.permissions.query = (parameters) => (
+                parameters.name === 'notifications' ?
+                    Promise.resolve({ state: Notification.permission }) :
+                    originalQuery(parameters)
+            );
         });
-    });
+
+        // Pass the Plugins Length Test.
+        await page.evaluateOnNewDocument(() => {
+            // Overwrite the `plugins` property to use a custom getter.
+            Object.defineProperty(navigator, 'plugins', {
+                // This just needs to have `length > 0` for the current test,
+                // but we could mock the plugins too if necessary.
+                get: () => [1, 2, 3, 4, 5],
+            });
+        });
+
+        // Pass the Languages Test.
+        await page.evaluateOnNewDocument(() => {
+            // Overwrite the `plugins` property to use a custom getter.
+            Object.defineProperty(navigator, 'languages', {
+                get: () => ['en-US', 'en'],
+            });
+        });
+    }
+
 }
+
+
