@@ -26,6 +26,8 @@ npm start
 - [x] Detection prevention
 - [x] Random user-agent
 - [x] Autofill
+- [x] Delay between browser launches
+
 
 ### TODO
 - [ ] Proxies
