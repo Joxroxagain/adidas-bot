@@ -27,10 +27,10 @@ npm start
 - [x] Random user-agent
 - [x] Autofill
 - [x] Delay between browser launches
-
+- [x] Proxies, imported by proxies.txt file in `IP:PORT` format
 
 ### TODO
-- [ ] Proxies
+
 - [ ] Auto add to cart
 - [ ] Captcha harvesting?
 - [ ] Scheduled release refresh
