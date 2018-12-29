@@ -20,18 +20,24 @@ npm install
 npm start
 ```
 ### Features
-- [x] Cart cart page and notification system
+- [x] Cart page detection and notification system
 - [x] Google cookie import for captcha prevention
 - [x] Headless mode
 - [x] Detection prevention
 - [x] Random user-agent
+- [x] Autofill
+- [x] Delay between browser launches
+
 
 ### TODO
-- [ ] Auto ATC
+- [ ] Proxies
+- [ ] Auto add to cart
 - [ ] Captcha harvesting?
 - [ ] Scheduled release refresh
 - [ ] Stock monitor
-- [ ] Autofill
+
+## Credits
+[<b>bequadro</b>](https://github.com/bequadro/kju) for some code
 
 ## License
 
