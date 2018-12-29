@@ -31,7 +31,7 @@ npm start
 
 ### TODO
 
-- [ ] Auto add to cart
+- [ ] Auto pilot mode (tries to completely automate the buying process)
 - [ ] Captcha harvesting?
 - [ ] Scheduled release refresh
 - [ ] Stock monitor
