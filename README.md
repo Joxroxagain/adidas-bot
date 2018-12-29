@@ -19,15 +19,18 @@ Then run the following commands to start:
 npm install
 npm start
 ```
-### TODO
+### Features
 - [x] Notify on cart page
-- [x] Google cookie for captcha prevention
+- [x] Google cookie import for captcha prevention
 - [x] Headless mode
+- [x] Detection prevention
+
+### TODO
 - [ ] Auto ATC
 - [ ] Captcha harvesting?
 - [ ] Scheduled release refresh
-- [ ] Save cookies on cart for use in requests
 - [ ] Stock monitor
+- [ ] Autofill
 
 ## License
 
