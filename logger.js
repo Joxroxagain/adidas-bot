@@ -10,13 +10,6 @@ process.stdin.setRawMode(true);
 
 let api = {};
 
-this.showLogs = false;
-this.clipboard = {
-	toggle: false,
-	hmac: '',
-	userAgent: ''
-};
-
 process.stdin.on('keypress', (char, key)  => {
 	if (key && key.ctrl && key.name == 'c') {
 		process.stdin.setRawMode(false);
@@ -36,7 +29,7 @@ api.info = function(instance, message) {
 };
 
 api.error = function(instance, error) {
-	if (this.showLogs) console.log(chalk.bgRed.white(` Instance ${instance}`), error);
+	console.log(chalk.bgRed.white(` Instance ${instance}`), error);
 };
 
 api.success = function(instance) {
