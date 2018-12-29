@@ -10,7 +10,7 @@ git clone https://github.com/Joxroxagain/adidas-bruteforcer.git
 ```
 Navigate to the folder to which you downloaded the files.
 
-If you want to use the google login feature, ue the chrome extension EditThisCookie to export your google cookies as JSON and enter the output into the file ```cookies.json```
+If you want to use the google login feature, use the chrome extension EditThisCookie to export your google cookies as JSON and enter the output into the file ```cookies.json```
 
 Edit the config file as you wish.
 
@@ -24,7 +24,6 @@ npm start
 - [x] Google cookie import for captcha prevention
 - [x] Headless mode
 - [x] Detection prevention
-- [x] Random user-agent
 - [x] Random user-agent
 
 ### TODO
