@@ -22,9 +22,9 @@ npm start
 ### TODO
 - [x] Notify on cart page
 - [x] Google sign
+- [x] Headless mode
 - [ ] Auto ATC
 - [ ] Captcha harvesting?
-- [ ] Headless mode
 - [ ] Scheduled release refresh
 - [ ] Save cookies on cart for use in requests
 - [ ] Stock monitor
