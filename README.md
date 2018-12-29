@@ -28,6 +28,7 @@ npm start
 - [x] Autofill
 
 ### TODO
+- [ ] Proxies
 - [ ] Auto add to cart
 - [ ] Captcha harvesting?
 - [ ] Scheduled release refresh
