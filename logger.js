@@ -6,14 +6,13 @@ const cp = require('copy-paste');
 
 const readline = require('readline');
 readline.emitKeypressEvents(process.stdin);
-process.stdin.setRawMode(true);
 
 let api = {};
 
 process.stdin.on('keypress', (char, key)  => {
 	if (key && key.ctrl && key.name == 'c') {
-		process.stdin.setRawMode(false);
-		console.log(chalk.red('Press Ctrl+C again to exit.'));
+		api.info(chalk.red('Exiting program...'));
+		process.exit()
 	}
 });
 
