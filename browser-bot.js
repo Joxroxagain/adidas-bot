@@ -152,12 +152,12 @@ module.exports = class Bot {
             // Catch checkout page 1
             else if (response.url().includes("COShipping-Show")) {
                 if (config.autofillCheckout)
-                    await this.autofillPage1();
+                    await this.autofillCheckout1();
             }
             // Catch checkout page 2
             else if (response.url().includes("COSummary2-Start")) {
                 if (config.autofillCheckout)
-                    await this.autofillPage2();
+                    await this.autofillCheckout2();
             }
         });
 
@@ -259,7 +259,7 @@ module.exports = class Bot {
         await browser.close();
     }
 
-    async autofillPage1() {
+    async autofillCheckout1() {
 
         //TODO: Better solution for preventing duplicates
 
@@ -306,7 +306,7 @@ module.exports = class Bot {
 
     }
 
-    async autofillPage2() {
+    async autofillCheckout2() {
 
         //TODO: Better solution for preventing duplicates
         if (lastAutoFill2 >= (Date.now() - delay))
