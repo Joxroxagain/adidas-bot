@@ -20,7 +20,7 @@ npm install
 npm start
 ```
 ### Features
-- [x] Cart cart page and notification system
+- [x] Cart page detection and notification system
 - [x] Google cookie import for captcha prevention
 - [x] Headless mode
 - [x] Detection prevention
