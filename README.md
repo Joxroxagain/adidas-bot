@@ -20,10 +20,12 @@ npm install
 npm start
 ```
 ### Features
-- [x] Notify on cart page
+- [x] Cart cart page and notification system
 - [x] Google cookie import for captcha prevention
 - [x] Headless mode
 - [x] Detection prevention
+- [x] Random user-agent
+- [x] Random user-agent
 
 ### TODO
 - [ ] Auto ATC
