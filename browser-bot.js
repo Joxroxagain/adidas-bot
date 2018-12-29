@@ -37,7 +37,7 @@ module.exports = class Bot {
     async start() {
         let args;
 
-        if (proxy != '') {
+        if (proxy != null) {
             args = [
                 '--no-sandbox',
                 `--window-size=${config.windowWidth},${config.windowHeight}`,
@@ -365,6 +365,7 @@ module.exports = class Bot {
         yearNumber[0].click();
 
     }
+
 }
 
 
