@@ -9,9 +9,10 @@ const _ = require('lodash');
 var ps = require('ps-list');
 const fkill = require('fkill');
 const autofill = require("./autofill.json")
+const config = require("./config.json");
 
+let proxy;
 let instance;
-let config;
 let baseUrl;
 let browser;
 let page;
@@ -23,21 +24,35 @@ var lastAutoFill1 = 0;
 var lastAutoFill2 = 0;
 var delay = 10000;
 
+// For waiting a set number of ms
+let wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+
 module.exports = class Bot {
 
-    constructor(i, c) {
+    constructor(i, p) {
         instance = i;
-        config = c;
+        proxy = p;
     }
 
     async start() {
+        let args;
 
-        // Launch the browser in headless mode and set up a page.
-        browser = await puppeteer.launch({
-            args: [
+        if (proxy != '') {
+            args = [
                 '--no-sandbox',
-                `--window-size=${config.windowWidth},${config.windowHeight}`
-            ],
+                `--window-size=${config.windowWidth},${config.windowHeight}`,
+                `--proxy-server=${proxy}`
+            ];
+        } else {
+            args = [
+                '--no-sandbox',
+                `--window-size=${config.windowWidth},${config.windowHeight}`,
+            ];
+        }
+
+        // Launch the browser
+        browser = await puppeteer.launch({
+            args,
             headless: config.headless,
             ignoreHTTPSErrors: true,
         });
@@ -78,21 +93,29 @@ module.exports = class Bot {
         await this.setListeners();
 
         // Navigate to the page
-        while (true) {
-            try {
-                await page.goto(config.url);
-                baseUrl = await page.url();
-                break;
-            } catch (err) {
-                logger.error(instance, err);
-            }
-        }
+        await this.goto(config.url);
 
     }
 
     async stop() {
         await browser.close();
         if (headedBrowser != null) await headedBrowser.close();
+    }
+
+    async goto(url) {
+        while (true) {
+            try {
+                await page.goto(url);
+                baseUrl = await page.url();
+                return;
+            } catch (err) {
+                logger.error(instance, err);
+                await wait(config.retryDelay)
+                await this.goto(config.url);
+            }
+
+        }
+
     }
 
     // Contains event handlers for various pages and conditions

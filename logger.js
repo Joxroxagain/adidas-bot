@@ -16,10 +16,10 @@ process.stdin.on('keypress', (char, key)  => {
 	}
 });
 
-api.intro = function(instances) {
+api.intro = function(instances, proxies) {
 	console.log(''); 
 	console.log(chalk.bgBlack.white('Adidas Bruteforcer '), chalk.bold(' v' + version));
-	console.log(chalk.dim(`Loading ${instances} instances...`));
+	console.log(chalk.dim(`Loading ${instances} instances with ${proxies} proxies...`));
 	console.log('');
 };
 

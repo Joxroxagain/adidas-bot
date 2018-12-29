@@ -2,6 +2,7 @@
     "url" : "https://www.adidas.com/yeezy",
     "taskCount": 1,
     "headless" : false,
+    "retryDelay": 10000,
     "startUpDelayInterval": 15000,
     "randomUserAgent": true,
     "alertOnCartPage": true,
