@@ -25,13 +25,14 @@ npm start
 - [x] Headless mode
 - [x] Detection prevention
 - [x] Random user-agent
+- [x] Autofill
 
 ### TODO
 - [ ] Auto ATC
 - [ ] Captcha harvesting?
 - [ ] Scheduled release refresh
 - [ ] Stock monitor
-- [ ] Autofill
+
 
 ## License
 
