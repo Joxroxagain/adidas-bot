@@ -94,7 +94,6 @@ module.exports = class Bot {
         // Handlers
         page.on('response', async response => {
 
-
             // Catch cart responses
             if (response.url().includes("api/cart_items")) {
 
@@ -146,8 +145,7 @@ module.exports = class Bot {
                 }
 
                 // If on cart page
-                // if (sizeSelector.length > 0 || cartButton.length > 0) {
-                if (true) {
+                if (sizeSelector.length > 0 || cartButton.length > 0) {
                     logger.success(instance);
 
                     if (config.alertOnCartPage) {
