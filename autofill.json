@@ -1,0 +1,15 @@
+{
+    "firstName" : "",
+    "lastName" : "",
+    "address1": "",
+    "address2" : "",
+    "city" : "",
+    "state" : "XX",
+    "postalCode" : "",
+    "phone" : "",
+    "emailAddress" : "",
+    "cardNumber" : "",
+    "month" : "XX",
+    "year" : "20xx",
+    "CVV" : ""
+}
