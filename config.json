@@ -8,7 +8,7 @@
     },
     "autoCart" : {
         "enabled" : true,
-        "sizes" : "any"
+        "sizes" : "16,15,14.5,3.5"
     },
     "retryDelay": 10000,
     "startUpDelayInterval": 10000,
