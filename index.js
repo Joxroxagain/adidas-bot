@@ -50,7 +50,7 @@ rimraf.sync(saveDir);
             bots.push(new Bot(index));
         }
 
-        if (config.webdata.useWebData) {
+        if (config.webdata.enabled) {
             if (config.webdata.path != "") {
                 await copyWebData(config.webdata.path + '\\Web Data', path.resolve('saves', 'chrome_' + index, "Default"));
             } else {

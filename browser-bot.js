@@ -8,7 +8,7 @@ const logger = require('./logger');
 const _ = require('lodash');
 var ps = require('ps-list');
 const fkill = require('fkill');
-const autofill = require("./autofill.json")
+// const autofill = require("./autofill.json")
 const config = require("./config.json");
 
 var checkoutUrl = 'https://www.adidas.com/on/demandware.store/Sites-adidas-US-Site/en_US/COShipping-Show';
@@ -21,15 +21,18 @@ module.exports = class Bot {
 
     constructor(i, p) {
         this.baseUrl = '';
+        this.PID = '';
         this.browser = null;
         this.page = null;
         this.instance = i;
         this.proxy = p;
+        // Get sizes to cart
+        this.sizesToCart = [];
+        if (config.autoCart.sizes != "any" && config.autoCart.sizes != "")
+            siesToCart = config.autoCart.sizes.split(',');
     }
 
     async start() {
-
-        console.log(`Starting bot instance ${this.instance}`)
 
         let args;
 
@@ -94,6 +97,7 @@ module.exports = class Bot {
             try {
                 await this.page.goto(config.url, { waitUntil: 'networkidle0' });
                 this.baseUrl = await this.page.url();
+                this.PID
                 break;
             } catch (err) {
                 logger.error(this.instance, err);
@@ -125,15 +129,15 @@ module.exports = class Bot {
             });
         }
  
-        // if (config.autoATC) {
-        //     while (true) {
-        //         if (await this.cartByRequest())
-        //             break;
-        //         else
-        //             await wait(config.retryDelay)
-        //     }
-        //     await this.page.goto(checkoutUrl, { waitUntil: 'domcontentloaded' });
-        // }
+        if (config.autoATC) {
+            while (true) {
+                if (await this.cartByRequest())
+                    break;
+                else
+                    await wait(config.retryDelay)
+            }
+            await this.page.goto(checkoutUrl, { waitUntil: 'domcontentloaded' });
+        }
 
 
         // if (config.autofillCheckout) {

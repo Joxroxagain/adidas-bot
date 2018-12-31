@@ -64,6 +64,6 @@ typings/
 cookies.json
 .vscode/launch.json
 autofill.json
-config.json
 proxies.txt
 saves
+config.json
