@@ -25,17 +25,18 @@ npm start
 - [x] Headless mode
 - [x] Detection prevention
 - [x] Random user-agent
-- [x] Autofill
+- [x] Autofill via profiles
 - [x] Delay between browser launches
 - [x] Proxies, imported by proxies.txt file in `IP:PORT` format
 
 ### TODO
 
-- [ ] Auto pilot mode (tries to completely automate the buying process)
+- [ ] Auto add to cart (almost done)
 - [ ] Captcha harvesting?
 - [ ] Scheduled release refresh
 - [ ] Stock monitor
 - [ ] Support for regions besides US
+- [ ] Documentation for seting up autofill and profiles
 
 ## Credits
 [<b>bequadro</b>](https://github.com/bequadro/kju) for some code
