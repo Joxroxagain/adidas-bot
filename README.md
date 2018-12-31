@@ -35,6 +35,7 @@ npm start
 - [ ] Captcha harvesting?
 - [ ] Scheduled release refresh
 - [ ] Stock monitor
+- [ ] Support for regions besides US
 
 ## Credits
 [<b>bequadro</b>](https://github.com/bequadro/kju) for some code
