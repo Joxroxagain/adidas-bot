@@ -124,7 +124,7 @@ module.exports = class Bot {
                 }
             });
         }
-
+ 
         // if (config.autoATC) {
         //     while (true) {
         //         if (await this.cartByRequest())
