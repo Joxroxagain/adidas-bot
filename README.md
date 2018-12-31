@@ -28,13 +28,13 @@ npm start
 - [x] Autofill via profiles
 - [x] Delay between browser launches
 - [x] Proxies, imported by proxies.txt file in `IP:PORT` format
+- [x] Stock monitoring
 
 ### TODO
 
 - [ ] Auto add to cart (almost done)
 - [ ] Captcha harvesting?
 - [ ] Scheduled release refresh
-- [ ] Stock monitor
 - [ ] Support for regions besides US
 - [ ] Documentation for seting up autofill and profiles
 
