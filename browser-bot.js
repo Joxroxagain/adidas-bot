@@ -25,6 +25,8 @@ module.exports = class Bot {
         this.PID = '';
         // Contains list of all sizes reported by the server
         this.availibility = [];
+        // Keeps track of wether or not there is a captcha: null until discovered
+        this.captchaEnabled = null;
         this.browser = null;
         this.page = null;
         this.instance = i;
@@ -109,8 +111,8 @@ module.exports = class Bot {
 
         // Wait for ATC page
         await Promise.race([
-            this.page.waitForXPath("//*[text() = 'Select size']"),
-            this.page.waitForXPath("//*[text() = 'Add To Bag']"),
+            this.page.waitForXPath("//*[text() = 'Select size']", { timeout: 0 }),
+            this.page.waitForXPath("//*[text() = 'Add To Bag']", { timeout: 0 }),
         ]);
 
         // Log success
@@ -130,7 +132,7 @@ module.exports = class Bot {
                 }
             });
         }
- 
+
         if (config.autoATC) {
             while (true) {
                 if (await this.cartByRequest())
@@ -159,13 +161,13 @@ module.exports = class Bot {
     // Contains event handlers for various pages and conditions
     async setListeners() {
 
+        var matchRule = (str, rule) => {
+            return new RegExp("^" + rule.split("*").join(".*") + "$").test(str);
+        }
+
         // Handlers
         await this.page.on('response', async response => {
 
-            var matchRule= (str, rule) =>{
-                return new RegExp("^" + rule.split("*").join(".*") + "$").test(str);
-            }
-            
             // Catch availability response
             if (matchRule(response.url(), '*/api/products/*/availability*')) {
                 try {
@@ -177,76 +179,16 @@ module.exports = class Bot {
                 }
             }
 
+            // Catch waiting room config response
+            if (matchRule(response.url(), '*waitingRoomConfig.json')) {
+                try {
+                    let json = await response.json();
+                    this.captchaEnabled = json.captcha == 'yes';
+                } catch (ex) {
+                    console.log(`Error parsing waiting room config JSON: ${ex}`)
+                }
+            }
 
-            // Catch 
-            // else if (response.url() == baseUrl) {
-
-            //     await page.waitForNavigation()
-
-            //     const sizeSelector = await page.$x("//*[text() = 'Select size']");
-            //     const cartButton = await page.$x("//*[text() = 'Add To Bag']");
-
-            //     // If on cart page
-            //     if (sizeSelector.length > 0 || cartButton.length > 0) {
-
-            //         console.log(`Carted: ${carted}`)
-            //         console.log(`Past splash: ${pastSplash}`)
-
-            //         if (!pastSplash)
-            //             logger.success(instance);
-
-            //         // Transfer cookies to headed browser
-            //         if (config.headless && !pastSplash) {
-            //             console.log("transfering cookies")
-            //             const sessionCookies = await page.cookies();
-
-            //             await this.lauchHeadedBrowser(sessionCookies);
-
-            //         }
-
-
-            //         // Notify user
-            //         if (config.alertOnCartPage && !pastSplash) {
-
-            //             notifier.notify({
-            //                 title: 'Adidas Bruteforcer',
-            //                 message: `Cart page on instance ${instance}}!`,
-            //                 sound: 'Hero',
-            //                 timeout: 60000
-            //             }, async (err, res, data) => {
-            //                 if (res == 'activate') {
-            //                     await page.bringToFront();
-            //                 }
-            //             });
-            //         }
-
-            //         if (config.autoATC && !carted) {
-            //             this.cartByRequest();
-            //         }
-
-            //         // prevent transfer of cookies again
-            //         pastSplash = true;
-
-            //     }
-
-
-
-            // }
-
-            // Cart cart page
-            // else if (response.url().includes("Cart-Show")) {
-            // }
-
-            // // Catch checkout page 1
-            // else if (response.url().includes("COShipping-Show")) {
-            //     if (config.autofillCheckout)
-            //         await this.autofillCheckout1();
-            // }
-            // // Catch checkout page 2
-            // else if (response.url().includes("COSummary2-Start")) {
-            //     if (config.autofillCheckout)
-            //         await this.autofillCheckout2();
-            // }
         });
 
     }
@@ -359,9 +301,8 @@ module.exports = class Bot {
 
         // Select the size dropdown to prevent bans when using auto ATC
         (await this.page.$x("//*[text() = 'Select size']"))[0].click();
-        // May need a delay - drvien by event handler?
+        // May need a delay - drivenn by event handler?
         await wait(2000);
-
 
 
         let response = await this.page.evaluate(async () => {
