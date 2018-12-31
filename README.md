@@ -29,6 +29,7 @@ npm start
 - [x] Delay between browser launches
 - [x] Proxies, imported by proxies.txt file in `IP:PORT` format
 - [x] Stock monitoring
+- [x] Captcha detection
 
 ### TODO
 
