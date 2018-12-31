@@ -43,8 +43,8 @@ npm start
 
 ## Contributing
 Contact me via 
-[x] email: jox.rox.js@gmail.com
-[x] discord: SoFloJoe#4498
+- [x] email: jox.rox.js@gmail.com
+- [x] discord: SoFloJoe#4498
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
