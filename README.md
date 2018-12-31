@@ -20,20 +20,19 @@ npm install
 npm start
 ```
 ### Features
+- [x] Auto add to cart, via speified sizes or random sizes
+- [x] Stock monitoring
 - [x] Cart page detection and notification system
 - [x] Google cookie import for captcha prevention
 - [x] Headless mode
 - [x] Detection prevention
 - [x] Random user-agent
-- [x] Autofill via profiles
+- [x] Autofill via profiles (chrome autofill imported from your bvrowser)
 - [x] Delay between browser launches
 - [x] Proxies, imported by proxies.txt file in `IP:PORT` format
-- [x] Stock monitoring
 - [x] Captcha detection
 
 ### TODO
-
-- [ ] Auto add to cart (almost done)
 - [ ] Captcha harvesting?
 - [ ] Scheduled release refresh
 - [ ] Support for regions besides US
@@ -42,6 +41,10 @@ npm start
 ## Credits
 [<b>bequadro</b>](https://github.com/bequadro/kju) for some code
 
-## License
+## Contributing
+Contact me via 
+[x] email: jox.rox.js@gmail.com
+[x] discord: SoFloJoe#4498
 
+## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
