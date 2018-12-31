@@ -351,10 +351,13 @@ module.exports = class Bot {
 
         }
 
+        // Catch error where PID is not found
         if (PID == null) { 
             logger.error(this.instance, "Cannot complete auto cart: No product ID found!")
             return;
-        } else if (sizesToCart.length == 0) {
+        } 
+        // Cart random size
+        else if (sizesToCart.length == 0) {
             logger.info(this.instance, "Carting random size")
 
             var newArray = availibility.filter(function (el) {
