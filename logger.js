@@ -24,7 +24,7 @@ api.intro = function(instances, proxies) {
 };
 
 api.info = function(instance, message) {
-	if (this.showLogs) console.log(chalk.bgBlackBright.white(` Instance ${instance}_${tab} `), chalk.dim(message));
+	console.log(chalk.bgBlackBright.white(` Instance ${instance} `), chalk.dim(message));
 };
 
 api.error = function(instance, error) {

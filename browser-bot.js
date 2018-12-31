@@ -13,28 +13,35 @@ const config = require("./config.json");
 
 var checkoutUrl = 'https://www.adidas.com/on/demandware.store/Sites-adidas-US-Site/en_US/COShipping-Show';
 var paymentUrl = 'https://www.adidas.com/on/demandware.store/Sites-adidas-US-Site/en_US/COSummary2-Start';
+var cartLink = 'https://www.adidas.com/api/cart_items?sitePath=us';
+var baseUrl;
 
 // For waiting a set number of ms
 let wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
+/*
+* Vars
+*/
+// Holds product ID when it is detected
+let PID = null;
+// Keeps track of wether or not there is a captcha: null until discovered
+let captchaEnabled = null;
+// Contains list of all sizes reported by the server
+let availibility = [];
+// Get sizes to cart
+let sizesToCart = [];
+if (config.autoCart.sizes != "any" && config.autoCart.sizes != "")
+    sizesToCart = config.autoCart.sizes.split(',');
+
+
 module.exports = class Bot {
 
     constructor(i, p) {
-        this.baseUrl = '';
-        // Holds product ID when it is detected
-        this.PID = '';
-        // Contains list of all sizes reported by the server
-        this.availibility = [];
-        // Keeps track of wether or not there is a captcha: null until discovered
-        this.captchaEnabled = null;
         this.browser = null;
         this.page = null;
         this.instance = i;
         this.proxy = p;
-        // Get sizes to cart
-        this.sizesToCart = [];
-        if (config.autoCart.sizes != "any" && config.autoCart.sizes != "")
-            this.siesToCart = config.autoCart.sizes.split(',');
+
     }
 
     async start() {
@@ -101,7 +108,7 @@ module.exports = class Bot {
         while (true) {
             try {
                 await this.page.goto(config.url, { waitUntil: 'networkidle0' });
-                this.baseUrl = await this.page.url();
+                if (baseUrl == null) baseUrl = await this.page.url();
                 break;
             } catch (err) {
                 logger.error(this.instance, err);
@@ -133,7 +140,7 @@ module.exports = class Bot {
             });
         }
 
-        if (config.autoATC) {
+        if (config.autoCart.enabled) {
             while (true) {
                 if (await this.cartByRequest())
                     break;
@@ -172,8 +179,8 @@ module.exports = class Bot {
             if (matchRule(response.url(), '*/api/products/*/availability*')) {
                 try {
                     let json = await response.json();
-                    this.PID = json.id;
-                    this.availibility = json.variation_list;
+                    PID = json.id;
+                    availibility = json.variation_list;
                 } catch (ex) {
                     console.log(`Error parsing availability JSON: ${ex}`)
                 }
@@ -183,7 +190,7 @@ module.exports = class Bot {
             if (matchRule(response.url(), '*waitingRoomConfig.json')) {
                 try {
                     let json = await response.json();
-                    this.captchaEnabled = json.captcha == 'yes';
+                    captchaEnabled = json.captcha == 'yes';
                 } catch (ex) {
                     console.log(`Error parsing waiting room config JSON: ${ex}`)
                 }
@@ -299,48 +306,82 @@ module.exports = class Bot {
 
     async cartByRequest() {
 
-        // Select the size dropdown to prevent bans when using auto ATC
-        (await this.page.$x("//*[text() = 'Select size']"))[0].click();
-        // May need a delay - drivenn by event handler?
-        await wait(2000);
+        async function cart(sku, size, page) {
+            // Select the size dropdown to prevent bans when using auto ATC
+            (await page.$x("//*[text() = 'Select size']"))[0].click();
+            // May need a delay - drivenn by event handler?
+            await wait(2000);
 
+            let response = await page.evaluate(async (cartLink, baseUrl, sku, PID, size) => {
+                const res = await fetch(cartLink, {
+                    "credentials": "include",
+                    "headers": {
+                        "accept": "*/*",
+                        "accept-language": "en-US,en;q=0.9,fr;q=0.8",
+                        "content-type": "application/json",
+                    },
+                    "referrer": baseUrl,
+                    "referrerPolicy": "no-referrer-when-downgrade",
+                    "body": JSON.stringify({
+                        product_id: PID,
+                        quantity: 1,
+                        product_variation_sku: sku,
+                        productId: "sku",
+                        size: size,
+                        displaySize: 9,
+                        captchaResponse: ""
+                    }),
+                    "method": "POST",
+                    "mode": "cors"
+                });
 
-        let response = await this.page.evaluate(async () => {
-            const res = await fetch("https://www.adidas.com/api/cart_items?sitePath=us", {
-                "credentials": "include",
-                "headers": {
-                    "accept": "*/*",
-                    "accept-language": "en-US,en;q=0.9,fr;q=0.8",
-                    "content-type": "application/json",
-                },
-                "referrer": 'https://www.adidas.com/us/pharrell-williams-bbc-hu-v2-shoes/BB9549.html',
-                "referrerPolicy": "no-referrer-when-downgrade",
-                "body": JSON.stringify({
-                    product_id: "BB9549",
-                    quantity: 1,
-                    product_variation_sku: "BB9549_630",
-                    productId: "BB9549_630",
-                    size: 9,
-                    displaySize: 9,
-                    captchaResponse: ""
-                }),
-                "method": "POST",
-                "mode": "cors"
+                try {
+                    const json = await res.json();
+                    return json;
+                } catch (e) {
+                    return null;
+                }
+            }, cartLink, baseUrl, sku, PID, size);
+
+            if (response == null) {
+                return false;
+            } else {
+                return response.cart.product_quantity != 0;
+            }
+
+        }
+
+        if (PID == null) { 
+            logger.error(this.instance, "Cannot complete auto cart: No product ID found!")
+            return;
+        } else if (sizesToCart.length == 0) {
+            logger.info(this.instance, "Carting random size")
+
+            var newArray = availibility.filter(function (el) {
+                return el.availability > 0;
             });
 
-            try {
-                const json = await res.json();
-                return json;
-            } catch (e) {
-                return null;
-            }
-        });
-
-        if (response == null) {
-            return false;
+            var varient = newArray[Math.floor(Math.random() * newArray.length)];
+            return await cart(varient.sku, varient.size, this.page, cartLink,);
         } else {
-            return response.cart.product_quantity != 0;
+            for (var size of sizesToCart) {
+                for (var varient of availibility) {
+                    if (varient.size == size && varient.availability > 0) {
+                        return await cart(varient.sku, varient.size, this.page, cartLink,);
+                    }
+                }
+            }
+
+            logger.info(this.instance, `Size(s) ${sizesToCart} not availible`)
+            return false;
         }
+
+
+
+
+
+
+
 
     }
 
