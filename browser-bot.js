@@ -21,7 +21,10 @@ module.exports = class Bot {
 
     constructor(i, p) {
         this.baseUrl = '';
+        // Holds product ID when it is detected
         this.PID = '';
+        // Contains list of all sizes reported by the server
+        this.availibility = [];
         this.browser = null;
         this.page = null;
         this.instance = i;
@@ -29,7 +32,7 @@ module.exports = class Bot {
         // Get sizes to cart
         this.sizesToCart = [];
         if (config.autoCart.sizes != "any" && config.autoCart.sizes != "")
-            siesToCart = config.autoCart.sizes.split(',');
+            this.siesToCart = config.autoCart.sizes.split(',');
     }
 
     async start() {
@@ -97,7 +100,6 @@ module.exports = class Bot {
             try {
                 await this.page.goto(config.url, { waitUntil: 'networkidle0' });
                 this.baseUrl = await this.page.url();
-                this.PID
                 break;
             } catch (err) {
                 logger.error(this.instance, err);
@@ -160,19 +162,21 @@ module.exports = class Bot {
         // Handlers
         await this.page.on('response', async response => {
 
-            // if (response.url().includes("api/cart_items")) {
-            //     console.log("caught cart response");
+            var matchRule= (str, rule) =>{
+                return new RegExp("^" + rule.split("*").join(".*") + "$").test(str);
+            }
+            
+            // Catch availability response
+            if (matchRule(response.url(), '*/api/products/*/availability*')) {
+                try {
+                    let json = await response.json();
+                    this.PID = json.id;
+                    this.availibility = json.variation_list;
+                } catch (ex) {
+                    console.log(`Error parsing availability JSON: ${ex}`)
+                }
+            }
 
-            //     try {
-            //         let json = await response.json();
-            //         if (json.cart.product_quantity != 0) {
-            //             carted = true;
-            //             console.log(`Basket count: ${json.cart.product_quantity}`)
-            //         }
-            //     } catch (ex) {
-            //         console.log(`Error parsing JSON: ${ex}`)
-            //     }
-            // }
 
             // Catch 
             // else if (response.url() == baseUrl) {
@@ -357,6 +361,8 @@ module.exports = class Bot {
         (await this.page.$x("//*[text() = 'Select size']"))[0].click();
         // May need a delay - drvien by event handler?
         await wait(2000);
+
+
 
         let response = await this.page.evaluate(async () => {
             const res = await fetch("https://www.adidas.com/api/cart_items?sitePath=us", {
