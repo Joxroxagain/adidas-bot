@@ -1,15 +1,15 @@
 {
-    "firstName" : "",
-    "lastName" : "",
-    "address1": "",
+    "firstName" : "joe",
+    "lastName" : "scott",
+    "address1": "3820 Cedar Run Ct.",
     "address2" : "",
-    "city" : "",
-    "state" : "XX",
-    "postalCode" : "",
-    "phone" : "",
-    "emailAddress" : "",
-    "cardNumber" : "",
-    "month" : "xx",
-    "year" : "20xx",
-    "CVV" : ""
+    "city" : "Efland",
+    "state" : "NC",
+    "postalCode" : "27243",
+    "phone" : "9199281202",
+    "emailAddress" : "jox.rox.js@gmail.com",
+    "cardNumber" : "4444444444444444",
+    "month" : "02",
+    "year" : "2021",
+    "CVV" : "222"
 }

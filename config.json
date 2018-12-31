@@ -2,11 +2,14 @@
     "url" : "https://www.adidas.com/yeezy",
     "taskCount": 10,
     "headless" : false,
+    "webdata" : {
+        "useWebData": true,
+        "path" : ""
+    },
     "retryDelay": 10000,
-    "startUpDelayInterval": 15000,
+    "startUpDelayInterval": 10000,
     "randomUserAgent": true,
     "alertOnCartPage": true,
     "windowHeight": 400,
-    "windowWidth": 600,
-    "autofillCheckout": false
+    "windowWidth": 600
 }
