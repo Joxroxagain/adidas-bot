@@ -6,15 +6,23 @@ const path = require('path');
 const GOOGLE_COOKIES = require('./cookies.json');
 const logger = require('./logger');
 const _ = require('lodash');
-var ps = require('ps-list');
+const ps = require('ps-list');
+const $ = require('cheerio');
 const fkill = require('fkill');
+const querystring = require('querystring');
 // const autofill = require("./autofill.json")
 const config = require("./config.json");
 
-var checkoutUrl = 'https://www.adidas.com/on/demandware.store/Sites-adidas-US-Site/en_US/COShipping-Show';
-var paymentUrl = 'https://www.adidas.com/on/demandware.store/Sites-adidas-US-Site/en_US/COSummary2-Start';
-var cartLink = 'https://www.adidas.com/api/cart_items?sitePath=us';
-var baseUrl;
+
+/*
+* Urls
+* TODO: chamge these to suport other regions
+*/
+const checkoutUrl = 'https://www.adidas.com/on/demandware.store/Sites-adidas-US-Site/en_US/COShipping-Show';
+const paymentUrl = 'https://www.adidas.com/on/demandware.store/Sites-adidas-US-Site/en_US/COSummary2-Start';
+const cartUrl = 'https://www.adidas.com/api/cart_items?sitePath=us';
+const shippingSubmitUrl = 'https://www.adidas.com/on/demandware.store/Sites-adidas-US-Site/en_US/COShipping-Submit';
+const paymentSubmitUrl = 'https://www.adidas.com/on/demandware.store/Sites-adidas-US-Site/en_US/COPayment-HandlePaymentForm';
 
 // For waiting a set number of ms
 let wait = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -22,6 +30,8 @@ let wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 /*
 * Vars
 */
+// Holds url that is first navigated to
+var baseUrl;
 // Holds product ID when it is detected
 let PID = null;
 // Keeps track of wether or not there is a captcha: null until discovered
@@ -32,6 +42,7 @@ let availibility = [];
 let sizesToCart = [];
 if (config.autoCart.sizes != "any" && config.autoCart.sizes != "")
     sizesToCart = config.autoCart.sizes.split(',');
+
 
 
 module.exports = class Bot {
@@ -96,7 +107,9 @@ module.exports = class Bot {
         });
 
         //Set timeout
-        this.page.setDefaultNavigationTimeout(60000);
+        await this.page.setDefaultNavigationTimeout(0);
+        // Allow interception
+        await this.page.setRequestInterception(true)
 
         // Prepare for the tests (not yet implemented).
         await this.preparePage();
@@ -142,14 +155,27 @@ module.exports = class Bot {
 
         if (config.autoCart.enabled) {
             while (true) {
-                if (await this.cartByRequest())
+                if (await this.cartProduct())
                     break;
                 else
                     await wait(config.retryDelay)
             }
-            await this.page.goto(checkoutUrl, { waitUntil: 'domcontentloaded' });
+            await this.page.goto(checkoutUrl, { waitUntil: 'networkidle0' });
         }
 
+        if (config.autoCheckout.enabled) {
+
+            await this.submitShipping();
+
+            await this.page.goto(paymentUrl, { waitUntil: 'networkidle0' });
+
+            await this.submitPayment();
+
+
+        }
+
+
+        // await this.page.goto("https://www.adidas.com/on/demandware.store/Sites-adidas-US-Site/en_US/COShipping-Submit", { waitUntil: 'domcontentloaded' });
 
         // if (config.autofillCheckout) {
         //     await this.fillCheckout1();
@@ -157,7 +183,6 @@ module.exports = class Bot {
         //     await this.page.waitForNavigation( { waitUntil: 'domcontentloaded' });
         //     await this.fillCheckout2();
         // }
-
 
     }
 
@@ -173,7 +198,7 @@ module.exports = class Bot {
         }
 
         // Handlers
-        await this.page.on('response', async response => {
+        this.page.on('response', async response => {
 
             // Catch availability response
             if (matchRule(response.url(), '*/api/products/*/availability*')) {
@@ -196,11 +221,21 @@ module.exports = class Bot {
                 }
             }
 
+            // if (matchRule(response.url(), '*/demandware.store/*/COShipping-Submit')) {
+            //     console.lo
+            // }
+
+        });
+
+        // Needed to prevent page from idling
+        this.page.on('request', request => {
+            request.continue();
         });
 
     }
 
     async preparePage() {
+
         // Pass the User-Agent Test
         let userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36";
         if (config.randomUserAgent)
@@ -304,11 +339,131 @@ module.exports = class Bot {
 
     }
 
-    async cartByRequest() {
+    async submitShipping() {
+
+        // Serialize the checkout form
+        let response = await this.page.evaluate(async () => {
+            try {
+                return await jQuery('#shippingForm').serialize();
+            } catch (e) {
+                return null;
+            }
+        });
+
+        // Convert it to JSON
+        var json = querystring.parse(response);
+
+        // Grab user data from config file
+        var userData = config.autoCheckout.data;
+
+        Object.keys(json).forEach(function (k) {
+            for (var name in userData) {
+                if (k.includes(name))
+                    json[k] = userData[name];
+            }
+        });
+
+        // Add the last fields that are created by a scrtipt
+        json['dwfrm_shipping_updateshippingmethods'] = 'updateshippingmethods';
+        json['dwfrm_shipping_submitshiptoaddress'] = 'Review and Pay';
+
+        let body = querystring.stringify(json);
+
+        return await this.page.evaluate(async (body, url) => {
+            try {
+                return await fetch(url, {
+                    "credentials": "omit",
+                    "headers": {
+                        "accept": "application/json, text/plain, */*",
+                        "content-type": "application/x-www-form-urlencoded;charset=UTF-8"
+                    },
+                    "referrer": "https://www.adidas.com/on/demandware.store/Sites-adidas-US-Site/en_US/COShipping-Show",
+                    "referrerPolicy": "no-referrer-when-downgrade",
+                    "body": body,
+                    "method": "POST",
+                    "mode": "cors"
+                });
+            } catch (e) {
+                console.log(e)
+                return null;
+            }
+        }, body, shippingSubmitUrl);
+    }
+
+    async submitPayment() {
+
+        if (await this.fillCheckout2()) {
+            (await this.page.$x("//*[text() = 'Place My Order']"))[1].click();
+        }
+
+        return;
+
+        // Serialize the checkout form
+        let response = await this.page.evaluate(async () => {
+            try {
+                return await jQuery('#dwfrm_payment').serialize();
+            } catch (e) {
+                return null;
+            }
+        });
+
+        // Convert it to JSON
+        var json = querystring.parse(response);
+
+        // Grab user data from config file
+        var userData = config.autoCheckout.data;
+
+        Object.keys(json).forEach(function (k) {
+            for (var name in userData) {
+                if (k.includes(name))
+                    json[k] = userData[name];
+            }
+        });
+
+        // TODO detect payment type
+        json["dwfrm_payment_creditCard_type"] = "001";
+        json["format"] = "ajax";
+
+        // console.log(json);
+
+        let body = querystring.stringify(json);
+
+        await this.page.evaluate(async (body, url) => {
+            try {
+                return await fetch(url, {
+                    "credentials": "include",
+                    "headers": {
+                        "accept": "application/json, text/javascript, */*; q=0.01",
+                        "accept-language": "en-US,en;q=0.9,fr;q=0.8",
+                        "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+                        "x-requested-with": "XMLHttpRequest"
+                    },
+                    "referrer": "https://www.adidas.com/on/demandware.store/Sites-adidas-US-Site/en_US/COSummary2-Start",
+                    "referrerPolicy": "no-referrer-when-downgrade",
+                    "body": body,
+                    "method": "POST",
+                    "mode": "cors"
+                });
+            } catch (e) {
+                console.log(e)
+                return null;
+            }
+        }, body, paymentSubmitUrl);
+
+        await this.page.reload();
+        // await this.page.evaluate(async () => {
+        //     document.querySelector("#dwfrm_payment").submit()
+        // });
+
+    }
+
+
+
+    async cartProduct() {
 
         async function cart(sku, size, page) {
             // Select the size dropdown to prevent bans when using auto ATC
-            (await page.$x("//*[text() = 'Select size']"))[0].click();
+            await (await page.$x("//*[text() = 'Select size']"))[0].click();
             // May need a delay - drivenn by event handler?
             await wait(2000);
 
@@ -341,7 +496,7 @@ module.exports = class Bot {
                 } catch (e) {
                     return null;
                 }
-            }, cartLink, baseUrl, sku, PID, size);
+            }, cartUrl, baseUrl, sku, PID, size);
 
             if (response == null) {
                 return false;
@@ -352,10 +507,10 @@ module.exports = class Bot {
         }
 
         // Catch error where PID is not found
-        if (PID == null) { 
+        if (PID == null) {
             logger.error(this.instance, "Cannot complete auto cart: No product ID found!")
             return;
-        } 
+        }
         // Cart random size
         else if (sizesToCart.length == 0) {
             logger.info(this.instance, "Carting random size")
@@ -365,12 +520,12 @@ module.exports = class Bot {
             });
 
             var varient = newArray[Math.floor(Math.random() * newArray.length)];
-            return await cart(varient.sku, varient.size, this.page, cartLink,);
+            return await cart(varient.sku, varient.size, this.page, cartUrl);
         } else {
             for (var size of sizesToCart) {
                 for (var varient of availibility) {
                     if (varient.size == size && varient.availability > 0) {
-                        return await cart(varient.sku, varient.size, this.page, cartLink,);
+                        return await cart(varient.sku, varient.size, this.page, cartUrl);
                     }
                 }
             }
@@ -445,8 +600,8 @@ module.exports = class Bot {
         ]
 
         let values = [
-            autofill.cardNumber,
-            autofill.CVV
+            config.autoCheckout.data.creditCard_number,
+            config.autoCheckout.data.creditCard_cvn
         ]
 
         for (let i = 0; i < selectors.length; i++) {
@@ -461,10 +616,11 @@ module.exports = class Bot {
 
         // Click and select month
         try {
+            if (config.autoCheckout.data.creditCard_month == "") return false;
             const month = await this.page.$("#dwfrm_payment_creditCard_month_display_field");
             await month.click();
-            const monthNumber = await this.page.$$(`[data-value="${autofill.month}"]`);
-            monthNumber[0].click();
+            const monthNumber = await this.page.$$(`[data-value="${config.autoCheckout.data.creditCard_month}"]`);
+            await monthNumber[0].click();
         } catch (e) {
             logger.error(this.instance, `Failed to autofill month field`);
             return false;
@@ -472,10 +628,11 @@ module.exports = class Bot {
 
         // Click and select year
         try {
+            if (config.autoCheckout.data.creditCard_year == "") return false;
             const year = await this.page.$("#dwfrm_payment_creditCard_year_display_field");
             await year.click();
-            const yearNumber = await this.page.$$(`[data-value="${autofill.year}"]`);
-            yearNumber[0].click();
+            const yearNumber = await this.page.$$(`[data-value="${config.autoCheckout.data.creditCard_year}"]`);
+            await yearNumber[0].click();
         } catch (e) {
             logger.error(this.instance, `Failed to autofill year field`);
             return false;
