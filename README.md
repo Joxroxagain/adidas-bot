@@ -33,6 +33,7 @@ npm start
 - [x] Captcha detection
 
 ### TODO
+- [ ] Auto checkout (almost done!)
 - [ ] Captcha harvesting?
 - [ ] Scheduled release refresh
 - [ ] Support for regions besides US
