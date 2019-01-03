@@ -120,7 +120,7 @@ module.exports = class Bot {
         // Navigate to the page
         while (true) {
             try {
-                await this.page.goto(config.url, { waitUntil: 'networkidle0' });
+                await this.page.goto(config.url, { waitUntil: 'domcontentloaded' });
                 if (baseUrl == null) baseUrl = await this.page.url();
                 break;
             } catch (err) {
@@ -160,7 +160,7 @@ module.exports = class Bot {
                 else
                     await wait(config.retryDelay)
             }
-            await this.page.goto(checkoutUrl, { waitUntil: 'networkidle0' });
+            await this.page.goto(checkoutUrl, { waitUntil: 'domcontentloaded' });
         }
 
         if (config.autoCheckout.enabled) {
@@ -171,18 +171,7 @@ module.exports = class Bot {
 
             await this.submitPayment();
 
-
         }
-
-
-        // await this.page.goto("https://www.adidas.com/on/demandware.store/Sites-adidas-US-Site/en_US/COShipping-Submit", { waitUntil: 'domcontentloaded' });
-
-        // if (config.autofillCheckout) {
-        //     await this.fillCheckout1();
-        //     await (await this.page.$('[name="dwfrm_shipping_submitshiptoaddress"]')).click();
-        //     await this.page.waitForNavigation( { waitUntil: 'domcontentloaded' });
-        //     await this.fillCheckout2();
-        // }
 
     }
 
@@ -392,45 +381,94 @@ module.exports = class Bot {
 
     async submitPayment() {
 
-        if (await this.fillCheckout2()) {
-            (await this.page.$x("//*[text() = 'Place My Order']"))[1].click();
+        // Pulled from adidas.com
+        function getCardType(cardNumber, mode) {
+            var result = 'other';
+            var returnMode = mode || 0; // return mode 0 - as string (default), 1 - as digit
+
+            if (typeof cardNumber == 'undefined' || !cardNumber.length) {
+                return result;
+            }
+
+            var cardNumber = cardNumber.replace(/[\s-]/g, '');
+
+            // first check for MasterCard (number starts with ranges 51-55 or 2221-2720)
+            if (/^(?:5[1-5]|222[1-9]|22[3-9][0-9]|2[3-6][0-9]{2}|27[01][0-9]|2720)/.test(cardNumber)) {
+                result = returnMode ? '002' : 'mc';
+            }
+            // then check for Visa
+            else if (/^4/.test(cardNumber)) {
+                result = returnMode ? '001' : 'visa';
+            }
+            // then check for AmEx
+            else if (/^3[47]/.test(cardNumber)) {
+                result = returnMode ? '003' : 'amex';
+            }
+            // then check for Discover
+            else if (/^(6011|622(12[6-9]|1[3-9][0-9]|[2-8][0-9]{2}|9[0-1][0-9]|92[0-5]|64[4-9])|65)/.test(cardNumber)) {
+                result = returnMode ? '004' : 'discover';
+            }
+            // then check for Diners Club International
+            else if (/^3(?:0|6|8)/.test(cardNumber)) {
+                result = returnMode ? '005' : 'diners';
+            }
+            // then check for ELO
+            else if (/^((((636368)|(438935)|(504175)|(451416)|(636297)|(506699))\d{0,10})|((5067)|(4576)|(4011))\d{0,12})$/.test(cardNumber)) {
+                result = returnMode ? '006' : 'elo';
+            }
+            // then check for Hipercard
+            else if (/^(606282\d{10}(\d{3})?)|(3841\d{15})$/.test(cardNumber)) {
+                result = returnMode ? '007' : 'hipercard';
+            }
+            // then check for electron
+            else if (/^(4026|417500|4405|4508|4844|4913|4917)\d+$/.test(cardNumber)) {
+                result = returnMode ? '008' : 'electron';
+            }
+            // then check for Cabal cards
+            else if (/(^604(([23][0-9][0-9])|(400))(\d{10})$)|(^589657(\d{10})$)/.test(cardNumber)) {
+                result = returnMode ? '011' : 'CABAL';
+            }
+            // then check for Naranja cards
+            else if (/^589562(\d{10})$/.test(cardNumber)) {
+                result = returnMode ? '012' : 'NARANJA';
+            }
+            // then check for maestro
+            else if (/^(?:5[0678]\d\d|6304|6390|67\d\d)\d{8,15}$/.test(cardNumber)) {
+                result = returnMode ? '009' : 'maestro';
+            }
+            // then check for MIR cards ( the number starts in range 2200-2204 )
+            else if (/^220[0-4]\d{12}$/.test(cardNumber)) {
+                result = returnMode ? '010' : 'MIR';
+            }
+            //Then check for troy cards (the number starts in range 979200-979289)
+            else if ((/^9792[0-8][0-9]\d{10}$/.test(cardNumber))) {
+                result = returnMode ? '' : 'troy';
+            }
+            return result;
         }
 
-        return;
-
-        // Serialize the checkout form
-        let response = await this.page.evaluate(async () => {
-            try {
-                return await jQuery('#dwfrm_payment').serialize();
-            } catch (e) {
-                return null;
-            }
-        });
-
-        // Convert it to JSON
-        var json = querystring.parse(response);
 
         // Grab user data from config file
         var userData = config.autoCheckout.data;
 
-        Object.keys(json).forEach(function (k) {
-            for (var name in userData) {
-                if (k.includes(name))
-                    json[k] = userData[name];
-            }
+        // Pull the form fields
+        let formData = querystring.parse(await this.page.evaluate(async () => {
+            return $("#dwfrm_payment").serialize();
+        }))
+
+        // Fill out form data
+        Object.keys(formData).forEach(function (k) {
+            for (var userEntry in userData)
+                if (k.includes(userEntry))
+                    formData[k] = userData[userEntry];
         });
 
-        // TODO detect payment type
-        json["dwfrm_payment_creditCard_type"] = "001";
-        json["format"] = "ajax";
+        formData["dwfrm_payment_creditCard_type"] = getCardType(userData.creditCard_number, 1)
+        formData["format"] = "ajax";
 
-        // console.log(json);
-
-        let body = querystring.stringify(json);
-
-        await this.page.evaluate(async (body, url) => {
+        let respJson = await this.page.evaluate(async (body, url) => {
             try {
-                return await fetch(url, {
+                const response = await fetch(url, {
                     "credentials": "include",
                     "headers": {
                         "accept": "application/json, text/javascript, */*; q=0.01",
@@ -444,20 +482,53 @@ module.exports = class Bot {
                     "method": "POST",
                     "mode": "cors"
                 });
+                return await response.json();
             } catch (e) {
                 console.log(e)
                 return null;
             }
-        }, body, paymentSubmitUrl);
+        }, querystring.stringify(formData), paymentSubmitUrl);
 
-        await this.page.reload();
-        // await this.page.evaluate(async () => {
-        //     document.querySelector("#dwfrm_payment").submit()
-        // });
+        if (respJson != null &&
+            respJson.hasErrors === false &&
+            (typeof (respJson.fieldsToSubmit) == 'object')) {
+
+            // Submit payment form to cybersource
+            await this.page.evaluate(async (data, cc, cvn) => {
+
+                var $form = $('<form>', {
+                    action: "https://secureacceptance.cybersource.com/silent/pay",
+                    method: 'post'
+                });
+                $.each(data, function (key, val) {
+                    $('<input>').attr({
+                        type: "hidden",
+                        name: key,
+                        value: val
+                    }).appendTo($form);
+                });
+
+                $('<input>').attr({
+                    type: "hidden",
+                    name: "card_cvn",
+                    value: cvn
+                }).appendTo($form);
+
+                $('<input>').attr({
+                    type: "hidden",
+                    name: "card_number",
+                    value: cc
+                }).appendTo($form);
+                $form.appendTo('body').submit();
+
+            }, respJson.fieldsToSubmit,
+                userData["creditCard_number"],
+                userData["creditCard_cvn"]
+            );
+
+        }
 
     }
-
-
 
     async cartProduct() {
 
