@@ -21,6 +21,7 @@ npm start
 ```
 ### Features
 - [x] Auto add to cart, via speified sizes or random sizes
+- [x] Auto checkout via credit card
 - [x] Stock monitoring
 - [x] Cart page detection and notification system
 - [x] Google cookie import for captcha prevention
@@ -33,7 +34,8 @@ npm start
 - [x] Captcha detection
 
 ### TODO
-- [ ] Auto checkout (almost done!)
+- [ ] Multiple profiles 
+- [ ] Checkout success/failure detection
 - [ ] Captcha harvesting?
 - [ ] Scheduled release refresh
 - [ ] Support for regions besides US
