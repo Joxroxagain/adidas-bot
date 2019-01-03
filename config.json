@@ -7,11 +7,11 @@
         "path": ""
     },
     "autoCart": {
-        "enabled": true,
+        "enabled": false,
         "sizes": "16,15,14.5,3.5,4.5"
     },
     "autoCheckout": {
-        "enabled": true,
+        "enabled": false,
         "data": {
             "firstName": "",
             "lastName": "",
