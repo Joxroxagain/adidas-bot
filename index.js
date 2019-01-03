@@ -32,7 +32,7 @@ async function copyWebData(file, dir2) {
 
 // Load proxies
 var proxies = fs.readFileSync('proxies.txt').toString().split("\n");
-if (proxies[0] == '') proxies = [];
+if (proxies[0] == '' || proxies[0] == '\r') proxies = [];
 
 // Show intro
 logger.intro(config.taskCount, proxies.length);
