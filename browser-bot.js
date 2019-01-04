@@ -10,9 +10,7 @@ const ps = require('ps-list');
 const $ = require('cheerio');
 const fkill = require('fkill');
 const querystring = require('querystring');
-// const autofill = require("./autofill.json")
 const config = require("./config.json");
-
 
 /*
 * Urls
@@ -42,7 +40,6 @@ let availibility = [];
 let sizesToCart = [];
 if (config.autoCart.sizes != "any" && config.autoCart.sizes != "")
     sizesToCart = config.autoCart.sizes.split(',');
-
 
 
 module.exports = class Bot {
@@ -120,7 +117,7 @@ module.exports = class Bot {
         // Navigate to the page
         while (true) {
             try {
-                await this.page.goto(config.url, { waitUntil: 'domcontentloaded' });
+                await this.page.goto(config.url, { waitUntil: 'load' });
                 if (baseUrl == null) baseUrl = await this.page.url();
                 break;
             } catch (err) {
@@ -153,6 +150,7 @@ module.exports = class Bot {
             });
         }
 
+        // Auto cart the shoe
         if (config.autoCart.enabled) {
             while (true) {
                 if (await this.cartProduct())
@@ -160,18 +158,22 @@ module.exports = class Bot {
                 else
                     await wait(config.retryDelay)
             }
-            await this.page.goto(checkoutUrl, { waitUntil: 'domcontentloaded' });
+            await this.page.goto(checkoutUrl, { waitUntil: 'load' });
         }
 
+        // Submit checkout information
         if (config.autoCheckout.enabled) {
 
-            await this.submitShipping();
+            while (true) {
+                if (await this.submitShipping()) break;
+                await wait(config.retryDelay);
+            }
 
-            await this.page.goto(paymentUrl, { waitUntil: 'networkidle0' });
+            await this.page.goto(paymentUrl, { waitUntil: 'domcontentloaded' });
 
-            await this.submitPayment();
-
-        }
+            await this.submitPayment()
+            
+        };
 
     }
 
@@ -331,7 +333,7 @@ module.exports = class Bot {
     async submitShipping() {
 
         // Serialize the checkout form
-        let response = await this.page.evaluate(async () => {
+        let checkoutForm = await this.page.evaluate(async () => {
             try {
                 return await jQuery('#shippingForm').serialize();
             } catch (e) {
@@ -339,8 +341,14 @@ module.exports = class Bot {
             }
         });
 
+        // Catch null shippingForm
+        if (checkoutForm == null) {
+            logger.error(this.instance, "Failed to serialize shippingForm!")
+            return false;
+        }
+
         // Convert it to JSON
-        var json = querystring.parse(response);
+        var json = querystring.parse(checkoutForm);
 
         // Grab user data from config file
         var userData = config.autoCheckout.data;
@@ -356,11 +364,9 @@ module.exports = class Bot {
         json['dwfrm_shipping_updateshippingmethods'] = 'updateshippingmethods';
         json['dwfrm_shipping_submitshiptoaddress'] = 'Review and Pay';
 
-        let body = querystring.stringify(json);
-
         return await this.page.evaluate(async (body, url) => {
             try {
-                return await fetch(url, {
+                await fetch(url, {
                     "credentials": "omit",
                     "headers": {
                         "accept": "application/json, text/plain, */*",
@@ -372,11 +378,12 @@ module.exports = class Bot {
                     "method": "POST",
                     "mode": "cors"
                 });
+                return true;
             } catch (e) {
                 console.log(e)
-                return null;
+                return false;
             }
-        }, body, shippingSubmitUrl);
+        }, querystring.stringify(json), shippingSubmitUrl);
     }
 
     async submitPayment() {
@@ -447,7 +454,6 @@ module.exports = class Bot {
             return result;
         }
 
-
         // Grab user data from config file
         var userData = config.autoCheckout.data;
 
@@ -455,6 +461,12 @@ module.exports = class Bot {
         let formData = querystring.parse(await this.page.evaluate(async () => {
             return $("#dwfrm_payment").serialize();
         }))
+
+        // Catch error where shipping info was entered incorrectly
+        if (formData['dwfrm_payment_creditCard_owner'].includes("null")) {
+            logger.error(this.instance, "Invalid shipping info detected! Please continue manually");
+            return false;
+        }
 
         // Fill out form data
         Object.keys(formData).forEach(function (k) {
@@ -466,6 +478,7 @@ module.exports = class Bot {
         formData["dwfrm_payment_creditCard_type"] = getCardType(userData.creditCard_number, 1)
         formData["format"] = "ajax";
 
+        // Submit payment data to adidas.com
         let respJson = await this.page.evaluate(async (body, url) => {
             try {
                 const response = await fetch(url, {
@@ -494,7 +507,7 @@ module.exports = class Bot {
             (typeof (respJson.fieldsToSubmit) == 'object')) {
 
             // Submit payment form to cybersource
-            await this.page.evaluate(async (data, cc, cvn) => {
+            const cybersourceResp = await this.page.evaluate(async (data, cc, cvn) => {
 
                 var $form = $('<form>', {
                     action: "https://secureacceptance.cybersource.com/silent/pay",
@@ -526,6 +539,8 @@ module.exports = class Bot {
                 userData["creditCard_cvn"]
             );
 
+        } else {
+            logger.error(this.instance, "Failed to submit payment information: there was an error with your payment information!")
         }
 
     }
@@ -604,13 +619,6 @@ module.exports = class Bot {
             logger.info(this.instance, `Size(s) ${sizesToCart} not availible`)
             return false;
         }
-
-
-
-
-
-
-
 
     }
 

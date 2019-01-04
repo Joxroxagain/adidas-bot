@@ -1,31 +1,31 @@
 {
-    "url": "https://www.adidas.com/yeezy",
-    "taskCount": 10,
+    "url": "https://www.adidas.com/us/ultraboost-shoes/DB3211.html",
+    "taskCount": 1,
     "headless": false,
     "webdata": {
-        "enabled": true,
+        "enabled": false,
         "path": ""
     },
     "autoCart": {
-        "enabled": false,
-        "sizes": "16,15,14.5,3.5,4.5"
+        "enabled": true,
+        "sizes": "16,15,14.5,3.5,4.5,10"
     },
     "autoCheckout": {
-        "enabled": false,
+        "enabled": true,
         "data": {
-            "firstName": "",
-            "lastName": "",
-            "address1": "",
+            "firstName": "Joe",
+            "lastName": "Scott",
+            "address1": "3820 cedar Cun Ct.",
             "address2": "",
-            "city": "",
-            "countyProvince": "",
-            "postalCode": "",
-            "phone": "",
-            "emailAddress": "",
-            "creditCard_number": "",
-            "creditCard_cvn" : "",
-            "creditCard_month" : "xx",
-            "creditCard_year": "20xx"
+            "city": "Efland",
+            "countyProvince": "NC",
+            "postalCode": "27243",
+            "phone": "9199281202",
+            "emailAddress": "jox.rox.js@gmail.com",
+            "creditCard_number": "4661880065632645",
+            "creditCard_cvn" : "384",
+            "creditCard_month" : "05",
+            "creditCard_year": "2022"
         }
     },
     "retryDelay": 10000,

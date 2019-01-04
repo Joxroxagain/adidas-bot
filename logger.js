@@ -2,7 +2,6 @@ const { version } = require('./package.json');
 
 const chalk = require('chalk');
 const moment = require('moment');
-const cp = require('copy-paste');
 
 const readline = require('readline');
 readline.emitKeypressEvents(process.stdin);
