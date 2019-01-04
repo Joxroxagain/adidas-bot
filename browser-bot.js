@@ -6,9 +6,7 @@ const path = require('path');
 const GOOGLE_COOKIES = require('./cookies.json');
 const logger = require('./logger');
 const _ = require('lodash');
-const ps = require('ps-list');
 const $ = require('cheerio');
-const fkill = require('fkill');
 const querystring = require('querystring');
 const config = require("./config.json");
 

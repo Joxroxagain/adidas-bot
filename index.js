@@ -45,8 +45,8 @@ var autoupdater = new AutoUpdater({
     pathToJson: '',
     autoupdate: true,
     checkgit: true,
-    jsonhost: 'raw.githubusercontent.com',
-    contenthost: 'codeload.github.com',
+    jsonhost: 'https://github.com/Joxroxagain/adidas-bruteforcer/blob/master/config.json',
+    contenthost: 'https://github.com/Joxroxagain/adidas-bruteforcer.git',
     progressDebounce: 0,
     devmode: false
 });
