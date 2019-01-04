@@ -1,6 +1,10 @@
 {
   "name": "adidas-browser-launcher",
   "version": "1.0.1",
+  "auto-updater":{
+    "repo":"/Joxroxagain/adidas-bruteforcer",
+    "branch":"master"
+  },
   "description": "Launches browsers with unique sessions for bruteforcing adidas splash pages.",
   "main": "index.js",
   "scripts": {
