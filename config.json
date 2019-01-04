@@ -11,21 +11,21 @@
         "sizes": "16,15,14.5,3.5,4.5,10"
     },
     "autoCheckout": {
-        "enabled": true,
+        "enabled": false,
         "data": {
-            "firstName": "Joe",
-            "lastName": "Scott",
-            "address1": "3820 cedar Cun Ct.",
+            "firstName": "",
+            "lastName": "",
+            "address1": "",
             "address2": "",
-            "city": "Efland",
-            "countyProvince": "NC",
-            "postalCode": "27243",
-            "phone": "9199281202",
-            "emailAddress": "jox.rox.js@gmail.com",
-            "creditCard_number": "4661880065632645",
-            "creditCard_cvn" : "384",
-            "creditCard_month" : "05",
-            "creditCard_year": "2022"
+            "city": "",
+            "countyProvince": "XX",
+            "postalCode": "",
+            "phone": "",
+            "emailAddress": "",
+            "creditCard_number": "",
+            "creditCard_cvn" : "",
+            "creditCard_month" : "xx",
+            "creditCard_year": "20xx"
         }
     },
     "retryDelay": 10000,
