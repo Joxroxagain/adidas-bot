@@ -45,80 +45,80 @@ var autoupdater = new AutoUpdater({
     pathToJson: '',
     autoupdate: true,
     checkgit: true,
-    jsonhost: 'https://github.com/Joxroxagain/adidas-bruteforcer/blob/master/config.json',
-    contenthost: 'https://github.com/Joxroxagain/adidas-bruteforcer.git',
+    jsonhost: '',
+    contenthost: '',
     progressDebounce: 0,
-    devmode: false
+    devmode: true
 });
 
 // State the events
-autoupdater.on('git-clone', function () {
-    console.log("You have a clone of the repository. Use 'git pull' to be up-to-date");
-});
-autoupdater.on('check.up-to-date', function (v) {
-    console.info("You have the latest version: " + v);
-});
-autoupdater.on('check.out-dated', function (v_old, v) {
-    console.warn("Your version is outdated. " + v_old + " of " + v);
-    autoupdater.fire('download-update'); // If autoupdate: false, you'll have to do this manually.
-    // Maybe ask if the'd like to download the update.
-});
-autoupdater.on('update.downloaded', function () {
-    console.log("Update downloaded and ready for install");
-    autoupdater.fire('extract'); // If autoupdate: false, you'll have to do this manually.
-});
-autoupdater.on('update.not-installed', function () {
-    console.log("The Update was already in your folder! It's read for install");
-    autoupdater.fire('extract'); // If autoupdate: false, you'll have to do this manually.
-});
-autoupdater.on('update.extracted', function () {
-    console.log("Update extracted successfully!");
-    console.warn("RESTART THE APP!");
-});
-autoupdater.on('download.start', function (name) {
-    console.log("Starting downloading: " + name);
-});
-autoupdater.on('download.progress', function (name, perc) {
-    process.stdout.write("Downloading " + perc + "% \033[0G");
-});
-autoupdater.on('download.end', function (name) {
-    console.log("Downloaded " + name);
-});
-autoupdater.on('download.error', function (err) {
-    console.error("Error when downloading: " + err);
-});
-autoupdater.on('end', function () {
-    console.log("The app is ready to function");
-});
-autoupdater.on('error', function (name, e) {
-    console.error(name, e);
-});
+// autoupdater.on('git-clone', function () {
+//     console.log("You have a clone of the repository. Use 'git pull' to be up-to-date");
+// });
+// autoupdater.on('check.up-to-date', function (v) {
+//     console.info("You have the latest version: " + v);
+// });
+// autoupdater.on('check.out-dated', function (v_old, v) {
+//     console.warn("Your version is outdated. " + v_old + " of " + v);
+//     autoupdater.fire('download-update'); // If autoupdate: false, you'll have to do this manually.
+//     // Maybe ask if the'd like to download the update.
+// });
+// autoupdater.on('update.downloaded', function () {
+//     console.log("Update downloaded and ready for install");
+//     autoupdater.fire('extract'); // If autoupdate: false, you'll have to do this manually.
+// });
+// autoupdater.on('update.not-installed', function () {
+//     console.log("The Update was already in your folder! It's read for install");
+//     autoupdater.fire('extract'); // If autoupdate: false, you'll have to do this manually.
+// });
+// autoupdater.on('update.extracted', function () {
+//     console.log("Update extracted successfully!");
+//     console.warn("RESTART THE APP!");
+// });
+// autoupdater.on('download.start', function (name) {
+//     console.log("Starting downloading: " + name);
+// });
+// autoupdater.on('download.progress', function (name, perc) {
+//     process.stdout.write("Downloading " + perc + "% \033[0G");
+// });
+// autoupdater.on('download.end', function (name) {
+//     console.log("Downloaded " + name);
+// });
+// autoupdater.on('download.error', function (err) {
+//     console.error("Error when downloading: " + err);
+// });
+// autoupdater.on('end', function () {
+//     console.log("The app is ready to function");
+// });
+// autoupdater.on('error', function (name, e) {
+//     console.error(name, e);
+// });
 
-autoupdater.fire('check');
+// autoupdater.fire('check');
 
 
 // Launch tasks
-// (async () => {
+(async () => {
 
-//     for (let index = 0; index < config.taskCount; index++) {
-//         if (proxies.length != 0) {
-//             bots.push(new Bot(index, proxies[index % proxies.length]));
-//         } else {
-//             bots.push(new Bot(index));
-//         }
+    for (let index = 0; index < config.taskCount; index++) {
+        if (proxies.length != 0) {
+            bots.push(new Bot(index, proxies[index % proxies.length]));
+        } else {
+            bots.push(new Bot(index));
+        }
 
-//         if (config.webdata.enabled) {
-//             if (config.webdata.path != "") {
-//                 await copyWebData(config.webdata.path + '\\Web Data', path.resolve('saves', 'chrome_' + index, "Default"));
-//             } else {
-//                 await copyWebData(chromeWebDataDir + '\\Web Data', path.resolve('saves', 'chrome_' + index, "Default"));
-//             }
-//         }
+        if (config.webdata.enabled) {
+            if (config.webdata.path != "") {
+                await copyWebData(config.webdata.path + '\\Web Data', path.resolve('saves', 'chrome_' + index, "Default"));
+            } else {
+                await copyWebData(chromeWebDataDir + '\\Web Data', path.resolve('saves', 'chrome_' + index, "Default"));
+            }
+        }
 
-//         setTimeout(function (i) {
-//             bots[i].start();
-//         }, config.startUpDelayInterval * index, index);
+        setTimeout(function (i) {
+            bots[i].start();
+        }, config.startUpDelayInterval * index, index);
 
-//     }
+    }
 
-// })();
+})();
