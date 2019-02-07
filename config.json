@@ -8,7 +8,7 @@
     },
     "autoCart": {
         "enabled": false,
-        "sizes": "16,15,14.5,3.5,4.5,10"
+        "sizes": "16,15,14.5,3.5,4.5"
     },
     "autoCheckout": {
         "enabled": false,
