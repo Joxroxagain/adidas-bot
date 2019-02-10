@@ -2,6 +2,7 @@
     "url": "https://www.adidas.com/yeezy",
     "taskCount": 10,
     "headless": false,
+    "headlessAfterSplash": false, 
     "webdata": {
         "enabled": false,
         "path": ""

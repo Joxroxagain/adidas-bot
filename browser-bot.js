@@ -101,11 +101,6 @@ module.exports = class Bot {
             height: 0
         });
 
-        //Set timeout
-        await this.page.setDefaultNavigationTimeout(0);
-        // Allow interception
-        await this.page.setRequestInterception(true)
-
         // Prepare for the tests (not yet implemented).
         await this.preparePage();
 
@@ -146,6 +141,11 @@ module.exports = class Bot {
                     await this.page.bringToFront();
                 }
             });
+        }
+
+        // Switch to headed browser if needed
+        if (!config.headlessAfterSplash) {
+            await this.lauchHeadedBrowser(await this.page.cookies())
         }
 
         // Auto cart the shoe
@@ -225,6 +225,11 @@ module.exports = class Bot {
 
     async preparePage() {
 
+        //Set timeout
+        await this.page.setDefaultNavigationTimeout(0);
+        // Allow interception
+        await this.page.setRequestInterception(true)
+
         // Pass the User-Agent Test
         let userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36";
         if (config.randomUserAgent)
@@ -279,8 +284,6 @@ module.exports = class Bot {
 
     async lauchHeadedBrowser(cookies) {
 
-        console.log("launching headed browser")
-
         this.browser.close();
 
         this.browser = await puppeteer.launch({
@@ -311,7 +314,7 @@ module.exports = class Bot {
 
         }
 
-        this.page = (await browser.pages())[0];
+        this.page = (await this.browser.pages())[0];
 
         this.page.setViewport({ width: 0, height: 0 });
 

@@ -1,6 +1,6 @@
 {
-  "name": "adidas-browser-launcher",
-  "version": "0.0.2",
+  "name": "adidas-bruteforcer",
+  "version": "0.0.3",
   "auto-updater": {
     "repo": "/Joxroxagain/adidas-bruteforcer",
     "branch": "master"
