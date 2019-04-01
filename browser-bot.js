@@ -5,7 +5,6 @@ const notifier = require('node-notifier');
 const path = require('path');
 const GOOGLE_COOKIES = require('./cookies.json');
 const logger = require('./logger');
-const _ = require('lodash');
 const $ = require('cheerio');
 const querystring = require('querystring');
 const config = require("./config.json");
@@ -30,8 +29,6 @@ let wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 var baseUrl;
 // Holds product ID when it is detected
 let PID = null;
-// Keeps track of wether or not there is a captcha: null until discovered
-let captchaEnabled = null;
 // Contains list of all sizes reported by the server
 let availibility = [];
 // Get sizes to cart
@@ -47,7 +44,7 @@ module.exports = class Bot {
         this.page = null;
         this.instance = i;
         this.proxy = p;
-
+        this.isHeadless = config.headless;
     }
 
     async start() {
@@ -120,10 +117,7 @@ module.exports = class Bot {
         }
 
         // Wait for ATC page
-        await Promise.race([
-            this.page.waitForXPath("//*[text() = 'Select size']", { timeout: 0 }),
-            this.page.waitForXPath("//*[text() = 'Add To Bag']", { timeout: 0 }),
-        ]);
+        await this.waitForATC(await this.page.cookies());
 
         // Log success
         logger.success(this.instance);
@@ -136,7 +130,7 @@ module.exports = class Bot {
                 message: `Cart page on instance ${this.instance}}!`,
                 sound: 'Hero',
                 timeout: 60000
-            }, async (err, res, data) => {
+            }, async (err, res) => {
                 if (res == 'activate') {
                     await this.page.bringToFront();
                 }
@@ -144,7 +138,8 @@ module.exports = class Bot {
         }
 
         // Switch to headed browser if needed
-        if (!config.headlessAfterSplash) {
+        if (!config.headlessAfterSplash && !this.isHeadless) {
+            this.isHeadless = false;
             await this.lauchHeadedBrowser(await this.page.cookies())
         }
 
@@ -204,7 +199,6 @@ module.exports = class Bot {
             if (matchRule(response.url(), '*waitingRoomConfig.json')) {
                 try {
                     let json = await response.json();
-                    captchaEnabled = json.captcha == 'yes';
                 } catch (ex) {
                     console.log(`Error parsing waiting room config JSON: ${ex}`)
                 }
@@ -329,6 +323,19 @@ module.exports = class Bot {
 
         await this.page.goto(baseUrl);
 
+    }
+
+    waitForATC(cookies) {
+        return new Promise(function(resolve) {
+            var interval = setInterval(function(cookies) {
+                for (let cookie of cookies) {
+                    if (cookie.value.includes(config.cookieKeyword)) {
+                        clearInterval(interval);
+                        resolve();
+                    }
+                } 
+            }, config.splashDetectionInterval, cookies);
+        });
     }
 
     async submitShipping() {
@@ -507,38 +514,6 @@ module.exports = class Bot {
             respJson.hasErrors === false &&
             (typeof (respJson.fieldsToSubmit) == 'object')) {
 
-            // Submit payment form to cybersource
-            const cybersourceResp = await this.page.evaluate(async (data, cc, cvn) => {
-
-                var $form = $('<form>', {
-                    action: "https://secureacceptance.cybersource.com/silent/pay",
-                    method: 'post'
-                });
-                $.each(data, function (key, val) {
-                    $('<input>').attr({
-                        type: "hidden",
-                        name: key,
-                        value: val
-                    }).appendTo($form);
-                });
-
-                $('<input>').attr({
-                    type: "hidden",
-                    name: "card_cvn",
-                    value: cvn
-                }).appendTo($form);
-
-                $('<input>').attr({
-                    type: "hidden",
-                    name: "card_number",
-                    value: cc
-                }).appendTo($form);
-                $form.appendTo('body').submit();
-
-            }, respJson.fieldsToSubmit,
-                userData["creditCard_number"],
-                userData["creditCard_cvn"]
-            );
 
         } else {
             logger.error(this.instance, "Failed to submit payment information: there was an error with your payment information!")

@@ -1,6 +1,6 @@
 {
     "url": "https://www.adidas.com/yeezy",
-    "taskCount": 10,
+    "taskCount": 1,
     "headless": false,
     "headlessAfterSplash": false, 
     "webdata": {
@@ -29,8 +29,10 @@
             "creditCard_year": "20xx"
         }
     },
+    "cookieKeyword": "hmac",
     "retryDelay": 10000,
     "startUpDelayInterval": 10000,
+    "splashDetectionInterval": 1000,
     "randomUserAgent": true,
     "alertOnCartPage": true,
     "windowHeight": 800,
