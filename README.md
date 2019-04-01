@@ -2,6 +2,12 @@
 
 Launches instances of puppeteer browsers to a specified url and notifies you when an adidas cart page is detected.
 
+# Status
+:white_check_mark: ATC page detection
+:white_check_mark: Auto checkout (when correct info is supplied
+:x: Auto carting (Untested for newest splash page versions) 
+
+
 ### Installing
 Clone or download the repository
 
@@ -19,6 +25,12 @@ Then run the following commands to start:
 npm install
 npm start
 ```
+### Configuration
+Open the file ```config.json``` and be careful to adhere to the JSON syntax in order to avoid launch errors.
+
+
+
+
 ### Features
 - [x] Auto add to cart, via speified sizes or random sizes
 - [x] Auto checkout via credit card
