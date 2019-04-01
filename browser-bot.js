@@ -44,7 +44,6 @@ module.exports = class Bot {
         this.page = null;
         this.instance = i;
         this.proxy = p;
-        this.isHeadless = config.headless;
     }
 
     async start() {
@@ -117,7 +116,7 @@ module.exports = class Bot {
         }
 
         // Wait for ATC page
-        await this.waitForATC(await this.page.cookies());
+        if (config.splashMode) await this.waitForATC(await this.page.cookies());
 
         // Log success
         logger.success(this.instance);
@@ -138,8 +137,7 @@ module.exports = class Bot {
         }
 
         // Switch to headed browser if needed
-        if (!config.headlessAfterSplash && !this.isHeadless) {
-            this.isHeadless = false;
+        if (!config.headlessAfterSplash && config.headless) {
             await this.lauchHeadedBrowser(await this.page.cookies())
         }
 
@@ -329,7 +327,7 @@ module.exports = class Bot {
         return new Promise(function(resolve) {
             var interval = setInterval(function(cookies) {
                 for (let cookie of cookies) {
-                    if (cookie.value.includes(config.cookieKeyword)) {
+                    if (cookie.value.includes(config.splashCookieKeyword)) {
                         clearInterval(interval);
                         resolve();
                     }
@@ -525,8 +523,8 @@ module.exports = class Bot {
 
         async function cart(sku, size, page) {
             // Select the size dropdown to prevent bans when using auto ATC
-            await (await page.$x("//*[text() = 'Select size']"))[0].click();
-            // May need a delay - drivenn by event handler?
+            await (await page.$x("//*[text() = 'penis']"))[0].click();
+            // May need a delay - driven by event handler?
             await wait(2000);
 
             let response = await page.evaluate(async (cartLink, baseUrl, sku, PID, size) => {

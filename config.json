@@ -3,6 +3,9 @@
     "taskCount": 1,
     "headless": false,
     "headlessAfterSplash": false, 
+    "debugMode": false,
+    "splashMode": true,
+    "splashCookieKeyword": "hmac",
     "webdata": {
         "enabled": false,
         "path": ""
@@ -29,7 +32,6 @@
             "creditCard_year": "20xx"
         }
     },
-    "cookieKeyword": "hmac",
     "retryDelay": 10000,
     "startUpDelayInterval": 10000,
     "splashDetectionInterval": 1000,
