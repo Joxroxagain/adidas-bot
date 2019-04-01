@@ -81,12 +81,12 @@ Open the file ```config.json``` and be careful to adhere to the JSON syntax in o
 - [ ] Checkout success/failure detection
 - [ ] Captcha harvesting
 - [ ] Scheduled release refresh
-- [ ] Support for regions besides US
+- [ ] Support for all regions (currently just US)
 
 ## Credits
 [<b>bequadro</b>](https://github.com/bequadro/kju) for some code
 
-## Contributing
+## Contributing or Support
 Contact me via 
 - [x] email: jox.rox.js@gmail.com
 - [x] discord: SoFloJoe#4498
