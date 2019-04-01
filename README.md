@@ -4,7 +4,9 @@ Launches instances of puppeteer browsers to a specified url and notifies you whe
 
 # Status
 :white_check_mark: ATC page detection
+
 :white_check_mark: Auto checkout (when correct info is supplied
+
 :x: Auto carting (Untested for newest splash page versions) 
 
 
