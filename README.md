@@ -49,7 +49,19 @@ Open the file ```config.json``` and be careful to adhere to the JSON syntax in o
 
 **```autoCart```**: This option enables auto-carting of shoes. Due to the constant changes to adidas splash pages, this feature may not always work. I recomend using this only when the status indicator above says that it is working. To enable, set the ```enabled``` sub-option to 'true' and input the sizes that you want to cart into the ```sizes``` sub-option, seperated by commas. 
 
+**```autoCheckout```**: This options enables auto checkout of a shoe after it has been added to cart. Enable this feature by changing the ```enabled``` sub-option to 'true' and by filling out your correct billing information under the ```data``` sub-option.
 
+**```retryDelay```**: Sets the number of milliseconds to wait before retrying various operations such as auto-carting and auto-checkout.
+
+**```startUpDelayInterval```**: Sets the number of milliseconds to wait between launching browsers. At least a few seconds is recomended because this will prevent IP bans from too much traffic at once.
+
+**```splashDetectionInterval```**: Sets the number of milliseconds to wait between checks for the add to cart (ATC) page. Very low values (under 10) causes extra load on your computer.
+
+**```randomUserAgent```**: Setting this option to 'true' allows the browsers to each generate a unique user-agent which helps prevent detection by adidas.
+
+**```alertOnCartPage```**: When enabled, you will recieve a notification when a browser has passed the splash page.
+
+**```windowHeight``` and ```windowWidth```**: Change these values to set the size (in pixels) of the browsers viewports. 
 
 ## Features
 - [x] Auto add to cart, via speified sizes or random sizes
