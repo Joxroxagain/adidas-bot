@@ -2,7 +2,7 @@
 
 Launches instances of puppeteer browsers to a specified url and notifies you when an adidas cart page is detected.
 
-# Status
+## Status
 :white_check_mark: ATC page detection (Untested for newest splash page versions) 
 
 :white_check_mark: Auto checkout for any shoe
@@ -12,7 +12,7 @@ Launches instances of puppeteer browsers to a specified url and notifies you whe
 :x: Auto carting yeezys (Untested for newest splash page versions) 
 
 
-### Installation
+## Installation
 Clone or download the repository
 
 ```
@@ -30,7 +30,7 @@ npm install
 npm start
 ```
 
-### Configuration settings
+## Configuration settings
 Open the file ```config.json``` and be careful to adhere to the JSON syntax in order to avoid launch errors.
 
 **Launch options:**
@@ -51,7 +51,7 @@ Open the file ```config.json``` and be careful to adhere to the JSON syntax in o
 
 
 
-### Features
+## Features
 - [x] Auto add to cart, via speified sizes or random sizes
 - [x] Auto checkout via credit card
 - [x] Stock monitoring
@@ -65,7 +65,7 @@ Open the file ```config.json``` and be careful to adhere to the JSON syntax in o
 - [x] Proxies, imported by proxies.txt file in `IP:PORT` format
 - [x] Captcha detection
 
-### TODO 
+## TODO 
 - [ ] Checkout success/failure detection
 - [ ] Captcha harvesting
 - [ ] Scheduled release refresh
