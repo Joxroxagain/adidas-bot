@@ -7,10 +7,12 @@ Launches instances of puppeteer browsers to a specified url and notifies you whe
 
 :white_check_mark: Auto checkout for any shoe
 
-:x: Auto carting (Untested for newest splash page versions) 
+:white_check_mark: Auto carting for non splash shoes
+
+:x: Auto carting yeezys (Untested for newest splash page versions) 
 
 
-### Installing
+### Installation
 Clone or download the repository
 
 ```
@@ -27,20 +29,25 @@ Then run the following commands to start:
 npm install
 npm start
 ```
-### Configuration
+
+### Configuration settings
 Open the file ```config.json``` and be careful to adhere to the JSON syntax in order to avoid launch errors.
 
-Launch options:
+**Launch options:**
 
-```url```: The url that the browsers will go to. For yeezy drops, use ```https://www.adidas.com/yeezy```.
+**```url```**: The url that the browsers will go to. For yeezy drops, use ```https://www.adidas.com/yeezy```.
 
-```taskCount```: The number of browsers that will be launched.
+**```taskCount```**: The number of browsers that will be launched.
 
-```headless```: Enables the use of chrome headless which makes all the browsers invisible until the ATC page is detected. Recomended use to to keep this set to false in case something goes wrong and you need to manually add shoes to cart.
+**```headless```**: Enables the use of chrome headless which makes all the browsers invisible until the ATC page is detected. Recomended use to to keep this set to false in case something goes wrong and you need to manually add shoes to cart.
 
-```url```:
-```url```:
+**```headlessAfterSplash```**: Enables chrome headless after the shoe has been added to cart. This is currently not recomended in case there are errors during checkout and manual intervention is needed.
 
+**```splashMode```**: Set to "true" for Yeezy releases and other releases with splash pages. Change to 'false' for all other releases. When enabled, this option makes the browsers wait for a cookie called the 'hmac' which indicates that the add to cart (ATC) page has been reached.
+
+**```webdata```**: This option allows the browsers to use the same webdata as your normal chrome installation (information such as your chrome autofill data, bookmarks, and passwords). This is usefull for manual checkout using chrome autofill. The ```enabled``` sub-option enables this feature and the ```path``` sub-option is only used when the bot cannot auto-detect the path to your chrome data (working on Windows 10 but needs testing on Mac and Linux).
+
+**```autoCart```**: This option enables auto-carting of shoes. Due to the constant changes to adidas splash pages, this feature may not always work. I recomend using this only when the status indicator above says that it is working. To enable, set the ```enabled``` sub-option to 'true' and input the sizes that you want to cart into the ```sizes``` sub-option, seperated by commas. 
 
 
 
@@ -58,13 +65,11 @@ Launch options:
 - [x] Proxies, imported by proxies.txt file in `IP:PORT` format
 - [x] Captcha detection
 
-### TODO
-- [ ] Multiple profiles 
+### TODO 
 - [ ] Checkout success/failure detection
-- [ ] Captcha harvesting?
+- [ ] Captcha harvesting
 - [ ] Scheduled release refresh
 - [ ] Support for regions besides US
-- [ ] Documentation for seting up autofill and profiles
 
 ## Credits
 [<b>bequadro</b>](https://github.com/bequadro/kju) for some code
