@@ -3,7 +3,6 @@
     "taskCount": 1,
     "headless": false,
     "headlessAfterSplash": false, 
-    "debugMode": false,
     "splashMode": true,
     "splashCookieKeyword": "hmac",
     "webdata": {

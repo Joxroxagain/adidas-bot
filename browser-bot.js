@@ -523,7 +523,7 @@ module.exports = class Bot {
 
         async function cart(sku, size, page) {
             // Select the size dropdown to prevent bans when using auto ATC
-            await (await page.$x("//*[text() = 'penis']"))[0].click();
+            await (await page.$x("//*[text() = 'Select size']"))[0].click();
             // May need a delay - driven by event handler?
             await wait(2000);
 
