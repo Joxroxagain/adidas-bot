@@ -3,9 +3,9 @@
 Launches instances of puppeteer browsers to a specified url and notifies you when an adidas cart page is detected.
 
 # Status
-:white_check_mark: ATC page detection
+:white_check_mark: ATC page detection (Untested for newest splash page versions) 
 
-:white_check_mark: Auto checkout (when correct info is supplied
+:white_check_mark: Auto checkout for any shoe
 
 :x: Auto carting (Untested for newest splash page versions) 
 
@@ -29,6 +29,17 @@ npm start
 ```
 ### Configuration
 Open the file ```config.json``` and be careful to adhere to the JSON syntax in order to avoid launch errors.
+
+Launch options:
+
+```url```: The url that the browsers will go to. For yeezy drops, use ```https://www.adidas.com/yeezy```.
+
+```taskCount```: The number of browsers that will be launched.
+
+```headless```: Enables the use of chrome headless which makes all the browsers invisible until the ATC page is detected. Recomended use to to keep this set to false in case something goes wrong and you need to manually add shoes to cart.
+
+```url```:
+```url```:
 
 
 
