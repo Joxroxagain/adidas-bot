@@ -9,7 +9,7 @@ Launches instances of puppeteer browsers to a specified url and notifies you whe
 
 :white_check_mark: Auto carting for non splash shoes
 
-:x: Auto carting yeezys (Untested for newest splash page versions) 
+:white_check_mark: Auto carting yeezys (Untested for newest splash page versions) 
 
 
 ## Installation
