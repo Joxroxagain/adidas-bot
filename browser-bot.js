@@ -12,6 +12,9 @@ const prettier = require('prettier');
 const atob = require('atob');
 const btoa = require('btoa');
 const fs = require('fs');
+const recaptchaPlugin = require('puppeteer-extra-plugin-recaptcha') ({
+    provider: { id: '2captcha', token: config.twocaptcha.apiKey }
+})
 
 /*
 * Urls
