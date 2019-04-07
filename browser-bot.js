@@ -1,4 +1,4 @@
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-extra')
 const fetch = require('node-fetch')
 const UserAgent = require('user-agents');
 const notifier = require('node-notifier');
@@ -8,6 +8,10 @@ const logger = require('./logger');
 const $ = require('cheerio');
 const querystring = require('querystring');
 const config = require("./config.json");
+const prettier = require('prettier');
+const atob = require('atob');
+const btoa = require('btoa');
+const fs = require('fs');
 
 /*
 * Urls
@@ -35,6 +39,13 @@ let availibility = [];
 let sizesToCart = [];
 if (config.autoCart.sizes != "any" && config.autoCart.sizes != "")
     sizesToCart = config.autoCart.sizes.split(',');
+
+
+const requestCache = new Map();
+
+function transform(source) {
+    return prettier.format(source, { parser: 'babel' });
+}
 
 
 module.exports = class Bot {
@@ -97,6 +108,11 @@ module.exports = class Bot {
             height: 0
         });
 
+        this.intercept(this.page, transform);
+
+        // Initialize chrome devtools protocol (needed for response interception)
+        await this.initializeCDP(this.page);
+
         // Prepare for the tests (not yet implemented).
         await this.preparePage();
 
@@ -114,6 +130,25 @@ module.exports = class Bot {
                 await wait(config.retryDelay)
             }
         }
+
+        // Look for captchas and solve them
+        new Promise((resolve, reject) => {
+            var interval = setInterval(async function (page) {
+                try {
+                    // await (page.evaluate(() => document.querySelector('#recaptcha-anchor > div.recaptcha-checkbox-checkmark').click()));
+                    for (const frame of page.mainFrame().childFrames()) {
+                        // Here you can use few identifying methods like url(),name(),title()
+                        if (frame.url().includes('recaptcha')) {
+                            await frame.$eval('.recaptcha-checkbox-checkmark', el => el.click());
+                            clearInterval(interval);
+                        }
+                    }
+                } catch (error) {
+                    console.log(error);
+                }
+            }, config.splashDetectionInterval, this.page);
+        });
+
 
         // Wait for ATC page
         if (config.splashMode) await this.waitForATC(await this.page.cookies());
@@ -163,7 +198,7 @@ module.exports = class Bot {
             await this.page.goto(paymentUrl, { waitUntil: 'domcontentloaded' });
 
             await this.submitPayment()
-            
+
         };
 
     }
@@ -179,39 +214,57 @@ module.exports = class Bot {
             return new RegExp("^" + rule.split("*").join(".*") + "$").test(str);
         }
 
-        // Handlers
-        this.page.on('response', async response => {
+        // // Handlers
+        // this.page.on('response', async response => {
 
-            // Catch availability response
-            if (matchRule(response.url(), '*/api/products/*/availability*')) {
-                try {
-                    let json = await response.json();
-                    PID = json.id;
-                    availibility = json.variation_list;
-                } catch (ex) {
-                    console.log(`Error parsing availability JSON: ${ex}`)
-                }
-            }
+        //     // Catch availability response
+        //     if (matchRule(response.url(), '*/api/products/*/availability*')) {
+        //         try {
+        //             let json = await response.json();
+        //             PID = json.id;
+        //             availibility = json.variation_list;
+        //         } catch (ex) {
+        //             console.log(`Error parsing availability JSON: ${ex}`)
+        //         }
+        //     }
 
-            // Catch waiting room config response
-            if (matchRule(response.url(), '*waitingRoomConfig.json')) {
-                try {
-                    let json = await response.json();
-                } catch (ex) {
-                    console.log(`Error parsing waiting room config JSON: ${ex}`)
-                }
-            }
+        //     // Catch captcha requests and change type to 'noclick' (captcha bypass)
+        //     if (matchRule(response.url(), '*google*recaptcha*reload*')) {
+        //         try {
+        //         } catch (ex) {
+        //             console.log(`${ex}`)
+        //         }
+        //     }
 
-            // if (matchRule(response.url(), '*/demandware.store/*/COShipping-Submit')) {
-            //     console.lo
-            // }
+        //     // Catch waiting room config response
+        //     if (matchRule(response.url(), '*waitingRoomConfig.json')) {
+        //         try {
+        //             let json = await response.json();
+        //         } catch (ex) {
+        //             console.log(`Error parsing waiting room config JSON: ${ex}`)
+        //         }
+        //     }
 
-        });
 
-        // Needed to prevent page from idling
-        this.page.on('request', request => {
-            request.continue();
-        });
+        //     // if (matchRule(response.url(), '*/demandware.store/*/COShipping-Submit')) {
+        //     //     console.lo
+        //     // }
+
+        // });
+
+        // // Needed to prevent page from idling
+        // this.page.on('request', request => {
+        //     // if (matchRule(response.url(), '*google*recaptcha*reload*')) {
+        //     //     request.respond({
+        //     //         status: 200,
+        //     //         contentType: 'application/javascript; charset=utf-8',
+        //     //         body: ''
+        //     //     });
+        //     // } else {
+        //     request.continue();
+        //     // }
+
+        // });
 
     }
 
@@ -220,7 +273,7 @@ module.exports = class Bot {
         //Set timeout
         await this.page.setDefaultNavigationTimeout(0);
         // Allow interception
-        await this.page.setRequestInterception(true)
+        // await this.page.setRequestInterception(true)
 
         // Pass the User-Agent Test
         let userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36";
@@ -323,15 +376,118 @@ module.exports = class Bot {
 
     }
 
+    async initializeCDP(page) {
+        const client = await page.target().createCDPSession();
+    }
+
+    async intercept(page, transform) {
+        const client = await page.target().createCDPSession();
+
+        const patterns = [
+            '*recaptcha*reload*',
+            // '*recaptcha*userverify*'
+        ]
+
+        await client.send('Network.enable');
+
+        await client.send('Network.setRequestInterception', {
+            patterns: patterns.map(pattern => ({
+                urlPattern: pattern, resourceType: 'XHR', interceptionStage: 'HeadersReceived'
+            }))
+        });
+
+        client.on('Network.requestIntercepted', async ({ interceptionId, request, responseHeaders, resourceType }) => {
+
+            function clean(text) {
+                let startIndex = text.indexOf('["pmeta"');
+
+                //nothing to remove - early exit
+                if (startIndex === -1) return text;
+
+                let endIndex = findLastOpenBracket(text, startIndex);
+
+                let toReplace = text.substring(startIndex, endIndex);
+
+                return text.replace(toReplace, "null")
+            }
+
+            function findLastOpenBracket(text, startIndex) {
+                let openBrackets = [];
+
+                for (let i = startIndex; i < text.length; i++) {
+                    let char = text[i];
+                    if (char === "[") {
+                        openBrackets.push(char);
+                    } else if (char === "]") {
+                        openBrackets.pop()
+
+                        if (openBrackets.length === 0) {
+                            return i + 1
+                        }
+                    }
+                }
+            }
+
+            // const readFile = (path, opts = 'utf8') =>
+            //     new Promise((resolve, reject) => {
+            //         fs.readFile(path, opts, (err, data) => {
+            //             if (err) reject(err)
+            //             else resolve(data)
+            //         })
+            //     })
+
+            const response = await client.send('Network.getResponseBodyForInterception', { interceptionId });
+            const bodyData = response.base64Encoded ? atob(response.body) : response.body;
+
+            // var newBody = await readFile('./input.txt');
+
+            const newBody = clean(bodyData)
+                .replace("dynamic", "nocaptcha")
+                .replace("imageselect", "nocaptcha")
+                .replace("doscaptcha", "nocaptcha")
+                .replace("multicaptcha", "nocaptcha")
+                .replace("tileselect", "nocaptcha")
+
+            const newHeaders = [
+                'HTTP/1.1 200 OK',
+                "alt-svc: quic=':443'; ma=2592000; v='46,44,43,39'",
+                "cache-control: private, max-age=0",
+                "content-encoding: gzip",
+                "server: GSE",
+                "set-cookie: SIDCC=AN0-TYuXHfaaMXH4XIsxZmwHDo1rFFFk4WSBXZlhS6tuv8yGpyEhLlL2loI6xdAHKUgeXduNGj9y; expires=Mon, 01-Jul-2019 19:54:16 GMT; path=/; domain=.google.com; priority=high",
+                "status: 200",
+                'date: ' + (new Date()).toUTCString(),
+                "expires: " + (new Date()).toUTCString(),
+                'content-length: ' + newBody.length,
+                'content-type: application/json; charset=utf-8',
+                "x-content-type-options: nosniff",
+                "x-frame-options: SAMEORIGIN",
+                "x-xss-protection: 1; mode=block"
+            ];
+
+
+            // fs.writeFile("./output.txt", newBody, function (err) {
+            //     if (err) {
+            //         return console.log(err);
+            //     }
+            // });
+
+            client.send('Network.continueInterceptedRequest', {
+                interceptionId,
+                rawResponse: btoa(newHeaders.join('\r\n') + '\r\n\r\n' + newBody)
+            });
+        });
+    }
+
     waitForATC(cookies) {
-        return new Promise(function(resolve) {
-            var interval = setInterval(function(cookies) {
+        return new Promise(function (resolve) {
+            var interval = setInterval(function (cookies) {
                 for (let cookie of cookies) {
                     if (cookie.value.includes(config.splashCookieKeyword)) {
                         clearInterval(interval);
                         resolve();
                     }
-                } 
+                }
             }, config.splashDetectionInterval, cookies);
         });
     }

@@ -5,6 +5,7 @@ const fs = require('fs-extra')
 const path = require('path');
 const rimraf = require("rimraf");
 var AutoUpdater = require('auto-updater');
+var solver = require('2captcha');
 
 // Contains running bots
 var bots = [];
@@ -40,6 +41,11 @@ logger.intro(config.taskCount, proxies.length);
 
 // Remove saves from the last run
 rimraf.sync(saveDir);
+
+// Init 2captcha
+if (config.twocaptcha.enabled)
+    solver.setApiKey(config.twocaptcha.apiKey);
+
 
 var autoupdater = new AutoUpdater({
     pathToJson: '',

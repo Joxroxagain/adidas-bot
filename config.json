@@ -1,5 +1,5 @@
 {
-    "url": "https://www.adidas.com/yeezy",
+    "url": "https://www.adidas.com/us/myaccount-register",
     "taskCount": 1,
     "headless": false,
     "headlessAfterSplash": false, 
@@ -12,6 +12,10 @@
     "autoCart": {
         "enabled": false,
         "sizes": "16,15,14.5,3.5,4.5"
+    },
+    "twocaptcha": {
+        "enabled": true,
+        "apiKey": "c49cd83b2c22b6e005a10c6653d7a1df"
     },
     "autoCheckout": {
         "enabled": false,
