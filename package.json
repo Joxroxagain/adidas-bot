@@ -29,8 +29,6 @@
   },
   "homepage": "https://github.com/Joxroxagain/adidas-bruteforcer#readme",
   "dependencies": {
-    "2captcha": "^1.0.11",
-    "2captcha-api": "^1.0.0",
     "atob": "^2.1.2",
     "auto-updater": "^1.0.2",
     "btoa": "^1.2.1",
