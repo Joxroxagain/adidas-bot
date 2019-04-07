@@ -116,9 +116,12 @@ module.exports = class Bot {
             height: 0
         });
 
-        // Prepare for the tests (not yet implemented).
-        await this.preparePage();
+        //Set timeout
+        await this.page.setDefaultNavigationTimeout(0);
 
+        // Allow interception
+        await this.page.setRequestInterception(true)
+        
         // Set up listeners
         await this.setListeners();
 
@@ -253,65 +256,6 @@ module.exports = class Bot {
 
         });
 
-    }
-
-    async preparePage() {
-
-        //Set timeout
-        await this.page.setDefaultNavigationTimeout(0);
-        // Allow interception
-        await this.page.setRequestInterception(true)
-
-        // Pass the User-Agent Test
-        // let userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36";
-        // if (config.randomUserAgent)
-        //     userAgent = new UserAgent({ deviceCategory: 'desktop' }).toString();
-
-        // await this.page.setUserAgent(userAgent);
-
-        // Pass the Webdriver Test.
-        await this.page.evaluateOnNewDocument(() => {
-            Object.defineProperty(navigator, 'webdriver', {
-                get: () => false,
-            });
-        });
-
-        // Pass the Chrome Test.
-        await this.page.evaluateOnNewDocument(() => {
-            // We can mock this in as much depth as we need for the test.
-            window.navigator.chrome = {
-                runtime: {},
-                // etc.
-            };
-        });
-
-        // Pass the Permissions Test.
-        await this.page.evaluateOnNewDocument(() => {
-            const originalQuery = window.navigator.permissions.query;
-            return window.navigator.permissions.query = (parameters) => (
-                parameters.name === 'notifications' ?
-                    Promise.resolve({ state: Notification.permission }) :
-                    originalQuery(parameters)
-            );
-        });
-
-        // Pass the Plugins Length Test.
-        await this.page.evaluateOnNewDocument(() => {
-            // Overwrite the `plugins` property to use a custom getter.
-            Object.defineProperty(navigator, 'plugins', {
-                // This just needs to have `length > 0` for the current test,
-                // but we could mock the plugins too if necessary.
-                get: () => [1, 2, 3, 4, 5],
-            });
-        });
-
-        // Pass the Languages Test.
-        await this.page.evaluateOnNewDocument(() => {
-            // Overwrite the `plugins` property to use a custom getter.
-            Object.defineProperty(navigator, 'languages', {
-                get: () => ['en-US', 'en'],
-            });
-        });
     }
 
     async lauchHeadedBrowser(cookies) {
