@@ -137,10 +137,8 @@ module.exports = class Bot {
         // Solve captchas
         this.page.solveRecaptchas()
 
-        console.log("awaiting hmac cookie")
-
         // Wait for ATC page
-        if (config.splashMode) await this.waitForATC(await this.page.cookies());
+        await this.waitForATC(await this.page.cookies());
 
         // Log success
         logger.success(this.instance);
