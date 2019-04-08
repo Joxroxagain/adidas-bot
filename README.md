@@ -31,9 +31,6 @@ Then run the following commands to start:
 npm install
 npm start
 ```
-## Setup for a live release
-
-
 
 ## Configuration settings
 Open the file ```config.json``` and be careful to adhere to the JSON syntax in order to avoid launch errors.
@@ -44,11 +41,11 @@ Open the file ```config.json``` and be careful to adhere to the JSON syntax in o
 
 **```taskCount```**: The number of browsers that will be launched.
 
+**```splashMode```**: Set to "true" for Yeezy releases and other releases with splash pages. Change to 'false' for all other releases. When enabled, this option makes the browsers wait for a cookie called the 'hmac' which indicates that the add to cart (ATC) page has been reached.
+
 **```headless```**: Enables the use of chrome headless which makes all the browsers invisible until the ATC page is detected. Recomended use to to keep this set to false in case something goes wrong and you need to manually add shoes to cart.
 
 **```headlessAfterSplash```**: Enables chrome headless after the shoe has been added to cart. This is currently not recomended in case there are errors during checkout and manual intervention is needed.
-
-**```splashMode```**: Set to "true" for Yeezy releases and other releases with splash pages. Change to 'false' for all other releases. When enabled, this option makes the browsers wait for a cookie called the 'hmac' which indicates that the add to cart (ATC) page has been reached.
 
 **```webdata```**: This option allows the browsers to use the same webdata as your normal chrome installation (information such as your chrome autofill data, bookmarks, and passwords). This is usefull for manual checkout using chrome autofill. The ```enabled``` sub-option enables this feature and the ```path``` sub-option is only used when the bot cannot auto-detect the path to your chrome data (working on Windows 10 but needs testing on Mac and Linux).
 
@@ -62,9 +59,7 @@ Open the file ```config.json``` and be careful to adhere to the JSON syntax in o
 
 **```splashDetectionInterval```**: Sets the number of milliseconds to wait between checks for the add to cart (ATC) page. Very low values (under 10) causes extra load on your computer.
 
-**```randomUserAgent```**: Setting this option to 'true' allows the browsers to each generate a unique user-agent which helps prevent detection by adidas.
-
-**```alertOnCartPage```**: When enabled, you will recieve a notification when a browser has passed the splash page.
+**```alerts```**: When enabled, you will recieve a notification when a browser has passed the splash page or when a recaptcha has been discovered.
 
 **```windowHeight``` and ```windowWidth```**: Change these values to set the size (in pixels) of the browsers viewports. 
 
