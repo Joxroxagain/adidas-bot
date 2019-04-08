@@ -184,7 +184,7 @@ module.exports = class Bot {
         if (config.autoCart.enabled &&
             config.twocaptcha.enabled &&
             config.twocaptcha.apiKey != '') {
-                
+
             // Wait for productID to be discovered
             await new Promise(async resolve => {
                 var interval = setInterval(function () {
