@@ -1,6 +1,7 @@
 {
-    "url": "https://www.adidas.com/us/myaccount-register",
+    "url": "https://www.google.com/recaptcha/api2/demo",
     "taskCount": 1,
+    "splashMade": true,
     "headless": false,
     "headlessAfterSplash": false, 
     "splashCookieKeyword": "hmac",
@@ -10,7 +11,7 @@
     },
     "autoCart": {
         "enabled": false,
-        "sizes": "16,15,14.5,3.5,4.5"
+        "sizes": "16,15,14.5,3.5,4.5,10"
     },
     "twocaptcha": {
         "enabled": true,
@@ -36,9 +37,8 @@
     },
     "retryDelay": 10000,
     "startUpDelayInterval": 10000,
-    "splashDetectionInterval": 1000,
-    "randomUserAgent": true,
-    "alertOnCartPage": true,
+    "detectionInterval": 1000,
+    "alerts": true,
     "windowHeight": 800,
     "windowWidth": 800
 }

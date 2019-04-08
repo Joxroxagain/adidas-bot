@@ -16,9 +16,9 @@ const fs = require('fs');
 const pluginStealth = require("puppeteer-extra-plugin-stealth");
 puppeteer.use(pluginStealth());
 
-const RecaptchaPlugin = require('puppeteer-extra-plugin-recaptcha')
+const RecaptchaPlugin = require('puppeteer-extra-plugin-recaptcha_v2')
 
-if (config.twocaptcha.enabled)
+if (config.twocaptcha.enabled && config.twocaptcha.apiKey != '')
     puppeteer.use(
         RecaptchaPlugin({
             provider: { id: '2captcha', token: config.twocaptcha.apiKey },
@@ -35,9 +35,6 @@ const paymentUrl = 'https://www.adidas.com/on/demandware.store/Sites-adidas-US-S
 const cartUrl = 'https://www.adidas.com/api/cart_items?sitePath=us';
 const shippingSubmitUrl = 'https://www.adidas.com/on/demandware.store/Sites-adidas-US-Site/en_US/COShipping-Submit';
 const paymentSubmitUrl = 'https://www.adidas.com/on/demandware.store/Sites-adidas-US-Site/en_US/COPayment-HandlePaymentForm';
-
-// For waiting a set number of ms
-let wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 /*
 * Vars
@@ -121,37 +118,51 @@ module.exports = class Bot {
 
         // Allow interception
         await this.page.setRequestInterception(true)
-        
+
         // Set up listeners
         await this.setListeners();
 
         // Navigate to the page
         while (true) {
             try {
-                await this.page.goto(config.url, { waitUntil: 'load' });
+                await this.page.goto(config.url, { waitUntil: 'domcontentloaded' });
                 if (baseUrl == null) baseUrl = await this.page.url();
                 break;
             } catch (err) {
                 logger.error(this.instance, err);
-                await wait(config.retryDelay)
+                await new Promise(resolve => setTimeout(resolve, config.retryDelay));
             }
         }
 
-        // Solve captchas
-        this.page.solveRecaptchas()
+        // Solve captchas when they show up
+        this.findCaptchas(this.page).then(() => {
+            if (config.alerts && !config.autoCart.enabled) {
+                notifier.notify({
+                    title: 'Adidas Bruteforcer',
+                    message: `Captcha discovered on instance ${this.instance}!`,
+                    sound: 'Hero',
+                    timeout: 60000
+                }, async (err, res) => {
+                    if (res == 'activate') {
+                        await this.page.bringToFront();
+                    }
+                });
+            }
+        })
 
         // Wait for ATC page
-        await this.waitForATC(await this.page.cookies());
+        if (config.splashMode)
+            await this.waitForATC(await this.page.cookies());
 
         // Log success
         logger.success(this.instance);
 
         // Notify user
-        if (config.alertOnCartPage) {
+        if (config.alerts) {
 
             notifier.notify({
                 title: 'Adidas Bruteforcer',
-                message: `Cart page on instance ${this.instance}}!`,
+                message: `Cart page on instance ${this.instance}!`,
                 sound: 'Hero',
                 timeout: 60000
             }, async (err, res) => {
@@ -162,19 +173,29 @@ module.exports = class Bot {
         }
 
         // Switch to headed browser if needed
-        if (!config.headlessAfterSplash && config.headless) {
-            await this.lauchHeadedBrowser(await this.page.cookies())
-        }
+        if (!config.headlessAfterSplash && config.headless) 
+            await this.lauchHeadedBrowser(await this.page.cookies());
 
         // Auto cart the shoe
         if (config.autoCart.enabled) {
+            // Wait for productID to be discovered
+            await new Promise(async resolve => {
+                var interval = setInterval(function () {
+                    if (PID != null) {
+                        clearInterval(interval);
+                        resolve();
+                    }
+                }, config.detectionInterval);
+            });
+
             while (true) {
                 if (await this.cartProduct())
                     break;
                 else
-                    await wait(config.retryDelay)
+                    await new Promise(resolve => setTimeout(resolve, config.retryDelay));
             }
-            await this.page.goto(checkoutUrl, { waitUntil: 'load' });
+
+            await this.page.goto(checkoutUrl, { waitUntil: 'domcontentloaded' });
         }
 
         // Submit checkout information
@@ -187,7 +208,7 @@ module.exports = class Bot {
 
             await this.page.goto(paymentUrl, { waitUntil: 'domcontentloaded' });
 
-            await this.submitPayment()
+            await this.submitPayment();
 
         };
 
@@ -215,14 +236,6 @@ module.exports = class Bot {
                     availibility = json.variation_list;
                 } catch (ex) {
                     console.log(`Error parsing availability JSON: ${ex}`)
-                }
-            }
-
-            // Catch captcha requests and change type to 'noclick' (captcha bypass)
-            if (matchRule(response.url(), '*google*recaptcha*reload*')) {
-                try {
-                } catch (ex) {
-                    console.log(`${ex}`)
                 }
             }
 
@@ -316,7 +329,25 @@ module.exports = class Bot {
                         resolve();
                     }
                 }
-            }, config.splashDetectionInterval, cookies);
+            }, config.detectionInterval, cookies);
+        });
+    }
+
+    findCaptchas(page) {
+        return new Promise(function (resolve) {
+            var interval = setInterval(async function (page) {
+                try {
+                    let { captchas, error } = await page.findRecaptchas()
+                    if (captchas.length != 0) {
+                        clearInterval(interval);
+                        page.solveRecaptchas()
+                        resolve();
+                    }
+                } catch (err) {
+                    clearInterval(interval);
+                }
+
+            }, config.detectionInterval, page);
         });
     }
 
@@ -508,8 +539,8 @@ module.exports = class Bot {
         async function cart(sku, size, page) {
             // Select the size dropdown to prevent bans when using auto ATC
             await (await page.$x("//*[text() = 'Select size']"))[0].click();
-            // May need a delay - driven by event handler?
-            await wait(2000);
+            // May need a delay - driven by event handler in the future?
+            await new Promise(resolve => setTimeout(resolve, 2000));;
 
             let response = await page.evaluate(async (cartLink, baseUrl, sku, PID, size) => {
                 const res = await fetch(cartLink, {
