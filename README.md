@@ -11,6 +11,8 @@ Launches instances of puppeteer browsers to a specified url and notifies you whe
 
 :white_check_mark: Auto carting yeezys (Untested for newest splash page versions) 
 
+:white_check_mark: Captcha solving with 2captcha
+
 
 ## Installation
 Clone or download the repository
@@ -29,6 +31,9 @@ Then run the following commands to start:
 npm install
 npm start
 ```
+## Setup for a live release
+
+
 
 ## Configuration settings
 Open the file ```config.json``` and be careful to adhere to the JSON syntax in order to avoid launch errors.
@@ -75,18 +80,16 @@ Open the file ```config.json``` and be careful to adhere to the JSON syntax in o
 - [x] Autofill via profiles (chrome autofill imported from your bvrowser)
 - [x] Delay between browser launches
 - [x] Proxies, imported by proxies.txt file in `IP:PORT` format
-- [x] Captcha detection
+- [x] Captcha harvesting with 2captcha
 
 ## TODO 
 - [ ] Checkout success/failure detection
-- [ ] Captcha harvesting
-- [ ] Scheduled release refresh
 - [ ] Support for all regions (currently just US)
 
 ## Credits
 [<b>bequadro</b>](https://github.com/bequadro/kju) for some code
 
-## Contributing or Support
+## Contributing or support
 Contact me via 
 - [x] email: jox.rox.js@gmail.com
 - [x] discord: SoFloJoe#4498
