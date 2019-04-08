@@ -51,6 +51,8 @@ Open the file ```config.json``` and be careful to adhere to the JSON syntax in o
 
 **```autoCart```**: This option enables auto-carting of shoes. Due to the constant changes to adidas splash pages, this feature may not always work. I recomend using this only when the status indicator above says that it is working. To enable, set the ```enabled``` sub-option to 'true' and input the sizes that you want to cart into the ```sizes``` sub-option, seperated by commas. 
 
+**```twocaptcha```**: This option enables the auto captcha solving feature using the [<b>2captcha</b>](https://2captcha.com/enterpage) procvider. Enter your api key into the ```apiKey``` field and set the ```enabled``` option to 'true' in order to enable it. **Important**: This must be set up in order for auto carting to work on releases.
+
 **```autoCheckout```**: This options enables auto checkout of a shoe after it has been added to cart. Enable this feature by changing the ```enabled``` sub-option to 'true' and by filling out your correct billing information under the ```data``` sub-option.
 
 **```retryDelay```**: Sets the number of milliseconds to wait before retrying various operations such as auto-carting and auto-checkout.
@@ -61,7 +63,7 @@ Open the file ```config.json``` and be careful to adhere to the JSON syntax in o
 
 **```alerts```**: When enabled, you will recieve a notification when a browser has passed the splash page or when a recaptcha has been discovered.
 
-**```windowHeight``` and ```windowWidth```**: Change these values to set the size (in pixels) of the browsers viewports. 
+**```windowHeight```** and **```windowWidth```**: Change these values to set the size (in pixels) of the browsers viewports. 
 
 ## Features
 - [x] Auto add to cart, via speified sizes or random sizes
