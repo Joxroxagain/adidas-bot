@@ -61,7 +61,7 @@ Open the file ```config.json``` and be careful to adhere to the JSON syntax in o
 
 **```alerts```**: When enabled, you will recieve a notification when a browser has passed the splash page or when a recaptcha has been discovered.
 
-**```windowHeight``` and ```windowWidth```**: Change these values to set the size (in pixels) of the browsers viewports. 
+**```windowHeight```** and ** ```windowWidth```**: Change these values to set the size (in pixels) of the browsers viewports. 
 
 ## Features
 - [x] Auto add to cart, via speified sizes or random sizes
