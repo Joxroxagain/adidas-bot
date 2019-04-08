@@ -1,7 +1,7 @@
 {
     "url": "https://www.adidas.com/us/yeezy",
     "taskCount": 1,
-    "splashMde": true,
+    "splashMode": true,
     "headless": false,
     "headlessAfterSplash": false, 
     "splashCookieKeyword": "hmac",
