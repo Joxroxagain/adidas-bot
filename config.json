@@ -1,7 +1,7 @@
 {
     "url": "https://www.google.com/recaptcha/api2/demo",
     "taskCount": 1,
-    "splashMode": true,
+    "splashMde": true,
     "headless": false,
     "headlessAfterSplash": false, 
     "splashCookieKeyword": "hmac",
