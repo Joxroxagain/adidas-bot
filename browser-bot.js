@@ -135,11 +135,36 @@ module.exports = class Bot {
         }
 
         // Solve captchas when they show up
-        this.findCaptchas(this.page).then(() => {
-            if (config.alerts && !config.autoCart.enabled) {
+        if (config.twocaptcha.enabled && config.twocaptcha.apiKey != '')
+            this.findCaptchas(this.page).then(() => {
+                if (config.alerts && !config.autoCart.enabled) {
+                    notifier.notify({
+                        title: 'Adidas Bruteforcer',
+                        message: `Captcha discovered on instance ${this.instance}!`,
+                        sound: 'Hero',
+                        timeout: 60000
+                    }, async (err, res) => {
+                        if (res == 'activate') {
+                            await this.page.bringToFront();
+                        }
+                    });
+                }
+            })
+
+        // Splash mode
+        if (config.splashMode) {
+            // Wait for ATC page
+            await this.waitForATC(await this.page.cookies());
+
+            // Log success
+            logger.success(this.instance);
+
+            // Notify user
+            if (config.alerts) {
+
                 notifier.notify({
                     title: 'Adidas Bruteforcer',
-                    message: `Captcha discovered on instance ${this.instance}!`,
+                    message: `Cart page on instance ${this.instance}!`,
                     sound: 'Hero',
                     timeout: 60000
                 }, async (err, res) => {
@@ -148,36 +173,18 @@ module.exports = class Bot {
                     }
                 });
             }
-        })
 
-        // Wait for ATC page
-        if (config.splashMode)
-            await this.waitForATC(await this.page.cookies());
+            // Switch to headed browser if needed
+            if (!config.headlessAfterSplash && config.headless)
+                await this.lauchHeadedBrowser(await this.page.cookies());
 
-        // Log success
-        logger.success(this.instance);
-
-        // Notify user
-        if (config.alerts) {
-
-            notifier.notify({
-                title: 'Adidas Bruteforcer',
-                message: `Cart page on instance ${this.instance}!`,
-                sound: 'Hero',
-                timeout: 60000
-            }, async (err, res) => {
-                if (res == 'activate') {
-                    await this.page.bringToFront();
-                }
-            });
         }
 
-        // Switch to headed browser if needed
-        if (!config.headlessAfterSplash && config.headless) 
-            await this.lauchHeadedBrowser(await this.page.cookies());
-
         // Auto cart the shoe
-        if (config.autoCart.enabled) {
+        if (config.autoCart.enabled &&
+            config.twocaptcha.enabled &&
+            config.twocaptcha.apiKey != '') {
+                
             // Wait for productID to be discovered
             await new Promise(async resolve => {
                 var interval = setInterval(function () {
