@@ -66,6 +66,7 @@ Open the file ```config.json``` and be careful to adhere to the JSON syntax in o
 **```windowHeight```** and **```windowWidth```**: Change these values to set the size (in pixels) of the browsers viewports. 
 
 ## Features
+- [x] Auto-updating keeps you on the latest release
 - [x] Auto add to cart, via speified sizes or random sizes
 - [x] Auto checkout via credit card
 - [x] Stock monitoring
