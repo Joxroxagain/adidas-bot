@@ -9,6 +9,8 @@ var AutoUpdater = require('auto-updater');
 // Contains running bots
 var bots = [];
 
+var needsRestart = false;
+
 // Paths
 var saveDir = 'saves'
 var localWebDataDir = path.join(__dirname, "webdata")
@@ -43,6 +45,7 @@ autoupdater.on('check.up-to-date', function (v) {
 });
 autoupdater.on('check.out-dated', function (v_old, v) {
     console.warn("Your version is outdated. " + v_old + " of " + v);
+    needsRestart = true;
     autoupdater.fire('download-update');
 });
 autoupdater.on('update.downloaded', function () {
@@ -69,32 +72,31 @@ autoupdater.on('download.error', function (err) {
     console.error("Error when downloading: " + err);
 });
 autoupdater.on('end', function () {
-    console.warn("Restarting application...");
+    if (needsRestart) {
+        console.warn("Restarting application...");
 
-    var exec = require('child_process').exec,
-        child;
+        var exec = require('child_process').exec,
+            child;
 
-    child = exec('npm i',
-        function (error, stdout, stderr) {
-            
-            if (error !== null) {
-                console.log('Error: ' + error);
-            }
+        child = exec('npm i',
+            function (error, stdout, stderr) {
 
-            process.on("exit", function () {
-                require("child_process").spawn(process.argv.shift(), process.argv, {
-                    cwd: process.cwd(),
-                    detached : true,
-                    stdio: "inherit"
+                if (error !== null) {
+                    console.log('Error: ' + error);
+                }
+
+                process.on("exit", function () {
+                    require("child_process").spawn(process.argv.shift(), process.argv, {
+                        cwd: process.cwd(),
+                        detached: true,
+                        stdio: "inherit"
+                    });
                 });
+                process.exit();
+
+
             });
-            process.exit();
-            
-
-        });
-
-    
-        
+    }
 });
 autoupdater.on('error', function (name, e) {
     console.error(name, e);
