@@ -73,7 +73,6 @@ autoupdater.on('download.error', function (err) {
 });
 autoupdater.on('end', function () {
     if (needsRestart) {
-        console.warn("Restarting application...");
 
         var exec = require('child_process').exec,
             child;
@@ -84,11 +83,13 @@ autoupdater.on('end', function () {
                     console.log('Error: ' + error);
                 }
             });
+
+        console.warn("Please restart the application!")
+
     }
 });
 autoupdater.on('error', function (name, e) {
     console.error(name, e);
-
 });
 
 autoupdater.fire('check');
