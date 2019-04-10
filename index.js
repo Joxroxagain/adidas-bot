@@ -70,6 +70,7 @@ autoupdater.on('download.error', function (err) {
 });
 autoupdater.on('end', function () {
     console.log("The app is ready to function");
+    launchTasks();
 });
 autoupdater.on('error', function (name, e) {
     console.error(name, e);
