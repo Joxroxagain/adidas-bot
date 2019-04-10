@@ -1,6 +1,5 @@
 const puppeteer = require('puppeteer-extra')
 const fetch = require('node-fetch')
-const UserAgent = require('user-agents');
 const notifier = require('node-notifier');
 const path = require('path');
 const GOOGLE_COOKIES = require('./cookies.json');
