@@ -80,21 +80,9 @@ autoupdater.on('end', function () {
 
         child = exec('npm i',
             function (error, stdout, stderr) {
-
                 if (error !== null) {
                     console.log('Error: ' + error);
                 }
-
-                process.on("exit", function () {
-                    require("child_process").spawn(process.argv.shift(), process.argv, {
-                        cwd: process.cwd(),
-                        detached: true,
-                        stdio: "inherit"
-                    });
-                });
-                process.exit();
-
-
             });
     }
 });
