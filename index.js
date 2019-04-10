@@ -39,6 +39,7 @@ autoupdater.on('git-clone', function () {
 });
 autoupdater.on('check.up-to-date', function (v) {
     console.info("You have the latest version: " + v);
+    launchTasks();
 });
 autoupdater.on('check.out-dated', function (v_old, v) {
     console.warn("Your version is outdated. " + v_old + " of " + v);
@@ -46,15 +47,14 @@ autoupdater.on('check.out-dated', function (v_old, v) {
 });
 autoupdater.on('update.downloaded', function () {
     console.log("Update downloaded and ready for install");
-    autoupdater.fire('extract'); 
+    autoupdater.fire('extract');
 });
 autoupdater.on('update.not-installed', function () {
     console.log("The Update was already in your folder! It's read for install");
-    autoupdater.fire('extract'); 
+    autoupdater.fire('extract');
 });
 autoupdater.on('update.extracted', function () {
     console.log("Update extracted successfully!");
-    console.warn("Restarting application...");
 });
 autoupdater.on('download.start', function (name) {
     console.log("Starting downloading: " + name);
@@ -69,11 +69,36 @@ autoupdater.on('download.error', function (err) {
     console.error("Error when downloading: " + err);
 });
 autoupdater.on('end', function () {
-    console.log("The app is ready to function");
-    launchTasks();
+    console.warn("Restarting application...");
+
+    var exec = require('child_process').exec,
+        child;
+
+    child = exec('npm i',
+        function (error, stdout, stderr) {
+            
+            if (error !== null) {
+                console.log('Error: ' + error);
+            }
+
+            process.on("exit", function () {
+                require("child_process").spawn(process.argv.shift(), process.argv, {
+                    cwd: process.cwd(),
+                    detached : true,
+                    stdio: "inherit"
+                });
+            });
+            process.exit();
+            
+
+        });
+
+    
+        
 });
 autoupdater.on('error', function (name, e) {
     console.error(name, e);
+
 });
 
 autoupdater.fire('check');
