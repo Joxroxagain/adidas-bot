@@ -1,4 +1,4 @@
-# Adidas Bruteforcer
+# Adidas Bot
 
 Launches instances of puppeteer browsers to a specified url and notifies you when an adidas cart page is detected.
 
