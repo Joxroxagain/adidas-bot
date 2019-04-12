@@ -1,6 +1,6 @@
 {
   "name": "adidas-bruteforcer",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "auto-updater": {
     "repo": "Joxroxagain/adidas-bruteforcer",
     "branch": "master"
