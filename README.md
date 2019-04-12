@@ -47,6 +47,10 @@ Open the file ```config.json``` and be careful to adhere to the JSON syntax in o
 
 **```headlessAfterSplash```**: Enables chrome headless after the shoe has been added to cart. This is currently not recomended in case there are errors during checkout and manual intervention is needed.
 
+**```splashCookieKeyword```**: Sets the keyword that indicates an ATC page. Default is `hmac` and will be changed if necessary.
+
+**```captchaExpected```**: Set this to 'true' if there will be a captcha to solve sometime during the process. In most cases, this will need to be left as 'true' but it can be disabled to test on non-hyped releases. For this option to work, you will need to have set up [<b>2captcha</b>](https://2captcha.com?from=5308824).
+
 **```webdata```**: This option allows the browsers to use the same webdata as your normal chrome installation (information such as your chrome autofill data, bookmarks, and passwords). This is usefull for manual checkout using chrome autofill. The ```enabled``` sub-option enables this feature and the ```path``` sub-option is only used when the bot cannot auto-detect the path to your chrome data (working on Windows 10 but needs testing on Mac and Linux).
 
 **```autoCart```**: This option enables auto-carting of shoes. Due to the constant changes to adidas splash pages, this feature may not always work. I recomend using this only when the status indicator above says that it is working. To enable, set the ```enabled``` sub-option to 'true' and input the sizes that you want to cart into the ```sizes``` sub-option, seperated by commas. 
