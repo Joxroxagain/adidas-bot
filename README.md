@@ -15,7 +15,7 @@ Launches instances of puppeteer browsers to a specified url and notifies you whe
 
 
 ## Installation
-Install [Node.JS] (https://nodejs.org/en/download/) and NPM (NPM is included with Node.JS) 
+Install [Node.JS](https://nodejs.org/en/download/) and NPM (NPM is included with Node.JS) 
 
 Clone or download the repository:
 
