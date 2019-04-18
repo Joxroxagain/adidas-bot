@@ -1,8 +1,8 @@
 {
-  "name": "adidas-bruteforcer",
-  "version": "0.1.3",
+  "name": "adidas-bot",
+  "version": "0.1.4",
   "auto-updater": {
-    "repo": "Joxroxagain/adidas-bruteforcer",
+    "repo": "Joxroxagain/adidas-bot",
     "branch": "master"
   },
   "description": "Launches browsers with unique sessions for bruteforcing adidas splash pages.",
@@ -25,9 +25,9 @@
   "author": "Joe Scott",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Joxroxagain/adidas-bruteforcer/issues"
+    "url": "https://github.com/Joxroxagain/adidas-bot/issues"
   },
-  "homepage": "https://github.com/Joxroxagain/adidas-bruteforcer#readme",
+  "homepage": "https://github.com/Joxroxagain/adidas-bot#readme",
   "dependencies": {
     "atob": "^2.1.2",
     "auto-updater": "github:Joxroxagain/auto-updater",
