@@ -6,16 +6,21 @@ const GOOGLE_COOKIES = require('./cookies.json');
 const logger = require('./logger');
 const $ = require('cheerio');
 const querystring = require('querystring');
-const config = require("./config.json");
 const prettier = require('prettier');
 const atob = require('atob');
 const btoa = require('btoa');
 const fs = require('fs');
-
 const pluginStealth = require("puppeteer-extra-plugin-stealth");
+const RecaptchaPlugin = require('puppeteer-extra-plugin-recaptcha_v2')
+
 puppeteer.use(pluginStealth());
 
-const RecaptchaPlugin = require('puppeteer-extra-plugin-recaptcha_v2')
+var config;
+if (fs.existsSync(".git")) {
+    config = require("./dev.config.json");
+} else {
+    config = require("./config.json");
+}
 
 if (config.twocaptcha.enabled && config.twocaptcha.apiKey != '')
     puppeteer.use(

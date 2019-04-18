@@ -67,3 +67,5 @@ autofill.json
 proxies.txt
 saves
 config.json
+dev.config.json
+.gitignore

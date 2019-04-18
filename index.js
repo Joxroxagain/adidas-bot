@@ -1,10 +1,15 @@
-const config = require("./config.json");
 const Bot = require('./browser-bot.js');
 const logger = require('./logger.js');
 const fs = require('fs-extra')
 const path = require('path');
 const rimraf = require("rimraf");
-var AutoUpdater = require('auto-updater');
+const AutoUpdater = require('auto-updater');
+var config;
+if (fs.existsSync(".git")) {
+    config = require("./dev.config.json");
+} else {
+    config = require("./config.json");
+}
 
 // Contains running bots
 var bots = [];
