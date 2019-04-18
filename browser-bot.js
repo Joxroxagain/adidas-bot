@@ -630,26 +630,31 @@ module.exports = class Bot {
 
         }
 
+        // If PID wasn't automatically picked up, use provided one from config
+        if (PID == null && config.autoCart.PID != "") {
+            PID = config.autoCart.PID;
+        }
         // Catch error where PID is not found
-        if (PID == null) {
+        else if (PID == null && config.autoCart.PID == "") {
             logger.error(this.instance, "Cannot complete auto-cart: No product ID found!")
-            return;
+            return false;
         }
         // Cart random size
         else if (sizesToCart.length == 0) {
             logger.info(this.instance, "Carting random size")
 
+            // Filter out OOS sizes
             var newArray = availibility.filter(function (el) {
                 return el.availability > 0;
             });
 
             var varient = newArray[Math.floor(Math.random() * newArray.length)];
-            return await cart(varient.sku, varient.size, page, cartUrl, instance, captchaSolution);
+            return await cart(varient.sku, varient.size, page, cartUrl, this.instance, captchaSolution);
         } else {
             for (var size of sizesToCart) {
                 for (var varient of availibility) {
                     if (varient.size == size && varient.availability > 0) {
-                        return await cart(varient.sku, varient.size, page, cartUrl, instance, captchaSolution);
+                        return await cart(varient.sku, varient.size, page, cartUrl, this.instance, captchaSolution);
                     }
                 }
             }

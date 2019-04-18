@@ -97,10 +97,10 @@ autoupdater.on('error', function (name, e) {
     console.error(name, e);
 });
 
+// Check for updates
 autoupdater.fire('check');
 
-
-// Launch tasks
+// Launches tasks
 async function launchTasks() {
     // Show intro
     logger.intro(config.taskCount, proxies.length);

@@ -23,11 +23,11 @@ api.intro = function(instances, proxies) {
 };
 
 api.info = function(instance, message) {
-	console.log(chalk.bgBlackBright.white(` Instance ${instance} `), chalk.dim(message));
+	console.log(chalk.bgBlackBright.white(`Instance ${instance} `), chalk.dim(message));
 };
 
 api.error = function(instance, error) {
-	console.log(chalk.bgRed.white(` Instance ${instance}`), error);
+	console.log(chalk.bgRed.white(`Instance ${instance}`), error);
 };
 
 api.success = function(instance) {
