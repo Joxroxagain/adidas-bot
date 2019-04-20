@@ -1,0 +1,46 @@
+{
+    "url": "https://www.adidas.com/us/yeezy",
+    "taskCount": 10,
+    "splashMode": true,
+    "headless": false,
+    "headlessAfterSplash": false, 
+    "splashCookieKeyword": "hmac",
+    "captchaExpected": true,
+    "webdata": {
+        "enabled": false,
+        "path": ""
+    },
+    "autoCart": {
+        "enabled": false,
+        "PID": "",
+        "sizes": "16,15,14.5,3.5,4.5"
+    },
+    "twocaptcha": {
+        "enabled": false,
+        "apiKey": ""
+    },
+    "autoCheckout": {
+        "enabled": false,
+        "data": {
+            "firstName": "",
+            "lastName": "",
+            "address1": "",
+            "address2": "",
+            "city": "",
+            "countyProvince": "XX",
+            "postalCode": "",
+            "phone": "",
+            "emailAddress": "",
+            "creditCard_number": "",
+            "creditCard_cvn" : "",
+            "creditCard_month" : "xx",
+            "creditCard_year": "20xx"
+        }
+    },
+    "retryDelay": 10000,
+    "startUpDelayInterval": 10000,
+    "detectionInterval": 100,
+    "alerts": true,
+    "windowHeight": 800,
+    "windowWidth": 800
+}
