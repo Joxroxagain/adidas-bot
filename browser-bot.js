@@ -350,8 +350,8 @@ module.exports = class Bot {
 
     }
 
-    waitForATC() {
-        return new Promise(function (resolve) {
+    async waitForATC() {
+        return new Promise((resolve, reject) => {
             var interval = setInterval(async function (page) {
                 let cookies = await page.cookies();
                 for (let cookie of cookies) {
@@ -367,7 +367,7 @@ module.exports = class Bot {
     // Resolves when a captcha is found oir when there was an error
     async findCaptchas() {
 
-        return await new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
 
             var interval = setInterval(async function (page, instance) {
                 try {
