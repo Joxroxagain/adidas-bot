@@ -365,7 +365,7 @@ module.exports = class Bot {
     }
 
     // Resolves when a captcha is found oir when there was an error
-    findCaptchas() {
+    async findCaptchas() {
 
         return await new Promise((resolve, reject) => {
 
