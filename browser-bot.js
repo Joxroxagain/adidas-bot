@@ -22,7 +22,7 @@ if (fs.existsSync(".git")) {
     config = require("./config.json");
 }
 
-if (config.twocaptcha.enabled && config.twocaptcha.apiKey != '')
+if (config.captchaExpected)
     puppeteer.use(
         RecaptchaPlugin({
             provider: { id: '2captcha', token: config.twocaptcha.apiKey },
@@ -152,12 +152,13 @@ module.exports = class Bot {
 
                 this.captchaSolution =
                     await this.solveCaptchas(cap);
-            }
+            } 
 
-            await this.waitForATC();
+            const cookie = await this.waitForATC();
 
             // Log success
             logger.success(this.instance);
+            logger.info(this.instance, `HMAC Name = ${cookie[0]}, HMAC Value = ${cookie[1]}`);
 
             // Notify user
             if (config.alerts) {
@@ -357,7 +358,7 @@ module.exports = class Bot {
                 for (let cookie of cookies) {
                     if (cookie.value.includes(config.splashCookieKeyword)) {
                         clearInterval(interval);
-                        resolve();
+                        resolve([cookie.name, cookie.value]);
                     }
                 }
             }, config.detectionInterval, this.page);
