@@ -22,7 +22,7 @@ if (fs.existsSync(".git")) {
     config = require("./config.json");
 }
 
-if (config.captchaExpected)
+if (config.twocaptcha.enabled)
     puppeteer.use(
         RecaptchaPlugin({
             provider: { id: '2captcha', token: config.twocaptcha.apiKey },
@@ -103,6 +103,8 @@ module.exports = class Bot {
                     value: cookie.value
                 });
             }
+
+
             await cookiePage.close();
 
         }
@@ -128,32 +130,16 @@ module.exports = class Bot {
         // Set up listeners
         await this.setListeners();
 
-        // Navigate to the page
-        while (true) {
-            try {
-                await this.page.goto(config.url, { waitUntil: 'domcontentloaded' });
-                if (baseUrl == null) baseUrl = await this.page.url();
-                break;
-            } catch (err) {
-                logger.error(this.instance, err);
-                await new Promise(resolve => setTimeout(resolve, config.retryDelay));
-            }
+        // Navigate to the page and solve captcha if needed
+        while (!(await this.goTo(config.url, true))) {
+            // Wait for the set timeout
+            await new Promise(resolve => setTimeout(resolve, config.retryDelay));
         }
 
         // Splash mode
         if (config.splashMode) {
 
-            // Wait for both the captcha to be solved and the splash page to be found
-            if (config.twocaptcha.enabled && config.captchaExpected) {
-                const cap = await this.findCaptchas();
-
-                // Notify user
-                logger.info(this.instance, `Solving captcha...`);
-
-                this.captchaSolution =
-                    await this.solveCaptchas(cap);
-            } 
-
+            // Wait for splash page to be found
             const cookie = await this.waitForATC();
 
             // Log success
@@ -180,23 +166,6 @@ module.exports = class Bot {
                 await this.lauchHeadedBrowser(await this.page.cookies());
 
         }
-        // Non-splash mode
-        else {
-
-            if (config.twocaptcha.enabled && config.captchaExpected) {
-
-                const cap = await this.findCaptchas();
-
-                // Notify user
-                logger.info(this.instance, `Solving captcha...`);
-
-                this.captchaSolution =
-                    await this.solveCaptchas(cap);
-
-            }
-
-
-        }
 
         // Auto cart the shoe
         if (config.autoCart.enabled) {
@@ -216,11 +185,8 @@ module.exports = class Bot {
             }
 
             // Cart the shoe 
-            while (true) {
-                if (await this.cartProduct())
-                    break;
-                else
-                    await new Promise(resolve => setTimeout(resolve, config.retryDelay));
+            while (!(await this.cartProduct())) {
+                await new Promise(resolve => setTimeout(resolve, config.retryDelay));
             }
 
             logger.info(this.instance, `Carted shoe!`);
@@ -246,6 +212,51 @@ module.exports = class Bot {
 
     async stop() {
         await this.browser.close();
+    }
+
+    // Navigate to a page with error catches
+    // Also solves a captcha is one is found before resolving
+    async goTo(url, lookForCaptcha) {
+        try {
+            await this.page.goto(config.url, { waitUntil: 'domcontentloaded' });
+            // Set base url
+            if (baseUrl == null) baseUrl = await this.page.url();
+
+            // If we are looking for captchas
+            if (lookForCaptcha) {
+                try {
+                    // Wait for captcha to load
+                    await this.page.waitForFunction(
+                        "document.querySelector(`iframe[src^='https://www.google.com/recaptcha/api2/anchor'][name^='a-']`)"
+                        + "&& document.querySelector(`iframe[src^='https://www.google.com/recaptcha/api2/anchor'][name^='a-']`).clientHeight != 0",
+                        { visible: true, timeout: 5000 });
+                    // Solve captchas
+                    if (!config.twocaptcha.enabled || config.twocaptcha.apiKey == "") {
+                        logger.error(this.instance, `Captcha detected, cannot solve because either 2captcha is not enabled or you did not supply an API key!`);
+                    } else {
+                        // Find captcha
+                        const cap = await this.findCaptchas();
+                        // Notify user
+                        logger.info(this.instance, `Solving captcha...`);
+                        // Solve captcha and set as solution
+                        this.captchaSolution =
+                            await this.solveCaptchas(cap);
+                        return true;
+                    }
+                } catch (err) {
+                    // Captcha not found
+                    if (err.name == "TimeoutError")
+                        return true;
+                    logger.error(this.instance, `Unknown error occured: ${err}`);
+                    return false;
+                }
+            }
+
+            return true;
+        } catch (err) {
+            logger.error(this.instance, `Error loading page: ${err}`);
+            return false;
+        }
     }
 
     // Contains event handlers for various pages and conditions
@@ -297,7 +308,7 @@ module.exports = class Bot {
 
         // For catching refreshes
         // this.page.on('domcontentloaded', () => {
-        //     console.log("reloaded")
+        //     this.findCaptchas();
         // })
 
     }
@@ -365,35 +376,28 @@ module.exports = class Bot {
         });
     }
 
-    // Resolves when a captcha is found oir when there was an error
+    // Finds a captcha on the page and returns the object
     async findCaptchas() {
-
-        return new Promise((resolve, reject) => {
-
-            var interval = setInterval(async function (page, instance) {
-                try {
-                    let { captchas, error } = await page.findRecaptchas();
-                    if (error != null) {
-                        logger.error(instance, `Error finding captcha: ${error}`)
-                    } else if (captchas.length != 0) {
-                        clearInterval(interval);
-                        resolve(captchas)
-                    }
-                } catch (err) {
-                    logger.error(this.instance, `Error finding captcha: ${err}`);
-                    clearInterval(interval);
-                    reject(false);
+        return new Promise(async (resolve, reject) => {
+            try {
+                let { captchas, error } = await this.page.findRecaptchas();
+                if (error != null) {
+                    logger.error(this.instance, `Error finding captcha: ${error}`)
+                } else if (captchas.length != 0) {
+                    logger.info(this.instance, `Found captcha!`)
+                    resolve(captchas);
                 }
-            }, config.detectionInterval, this.page, this.instance);
-
-        });
-
+            } catch (err) {
+                logger.error(this.instance, `Error finding captcha: ${err}`)
+                resolve(false);
+            }
+        })
     }
 
     // Resolves when the captcha is solved and entered
     async solveCaptchas(captchas) {
         // Return if there was an error
-        if (captchas == false) return;
+        if (captchas == false) return false;
 
         try {
             let { solutions, error1 } = await this.page.getRecaptchaSolutions(captchas)
@@ -598,10 +602,21 @@ module.exports = class Bot {
     async cartProduct() {
 
         async function cart(sku, size, page, baseUrl, instance, captcha) {
-            // Select the size dropdown to prevent bans when using auto ATC
-            await (await page.$x("//*[text() = 'Select size']"))[0].click();
-            // Need a delay - driven by event handler in the future?
-            await new Promise(resolve => setTimeout(resolve, 2000));;
+            // Send bmak so that we don't get banned on ATC
+            const bmak = await page.evaluate(() => {
+                if (typeof bmak.pd != "function") return false;
+                bmak.pd();
+                return true;
+            });
+
+            // If calling the bmak function fails, manually trigger the function
+            if (!bmak) {
+                // Select the size dropdown
+                await (await page.$x("//*[text() = 'Select size']"))[0].click();
+            }
+
+            // Need a delay to prevent bans - driven by event handler in the future?
+            await new Promise(resolve => setTimeout(resolve, 2000));
 
             let response = await page.evaluate(async (cartUrl, baseUrl, sku, PID, size, captcha) => {
                 const res = await fetch(cartUrl, {
@@ -615,36 +630,42 @@ module.exports = class Bot {
                     "referrerPolicy": "no-referrer-when-downgrade",
                     "body": JSON.stringify({
                         captchaResponse: captcha,
-                        product_id: PID,
-                        quantity: 1,
-                        product_variation_sku: sku,
-                        productId: "sku",
-                        size: size,
                         displaySize: size,
+                        productId: sku,
+                        product_id: PID,
+                        product_variation_sku: sku,
+                        quantity: 1, 
+                        size: size
                     }),
                     "method": "POST",
                     "mode": "cors"
                 });
 
                 try {
-                    const json = await res.json();
-                    return json;
-                } catch (e) {
-                    return null;
-                }
+                    if (res.status == 200) {
+                        const json = await res.json();
+                        return { success: true, json: json, statusCode: res.status };
+                    }
+                } catch (err) { }
+                return { success: false, json: null, statusCode: res.status };
+
             }, cartUrl, baseUrl, sku, PID, size, captcha);
 
-            if (response == null) {
-                return false;
+            if (response.success && response.json.cart.product_quantity != 0) {
+                return true;
+            } else if (response.json != null) {
+                switch (response.json.message) {
+                    case "INVALID-CAPTCHA":
+                        logger.info(instance, `Failed to cart shoe: invalid captcha supplied!`);
+                        break;
+                    default: logger.info(instance, `Failed to cart shoe: an unknown error occured!`);
+                }
             } else {
-                try {
-                    return response.cart.product_quantity != 0;
-                } catch (err) {
-                    switch (response.message) {
-                        case "INVALID-CAPTCHA": logger.info(instance, `Failed to cart shoe: invalid captcha supplied!`);
-                        default: logger.info(instance, `Failed to cart shoe: an unknown error occured.`);
-                    }
-                    return false;
+                switch (response.statusCode) {
+                    case 403:
+                        logger.info(instance, `Failed to cart shoe: temporary ban occured!`);
+                        break;
+                    default: logger.info(instance, `Failed to cart shoe: an unknown error occured!`);
                 }
             }
 
@@ -652,7 +673,7 @@ module.exports = class Bot {
 
         // Cart random size
         if (sizesToCart.length == 0) {
-            logger.info(this.instance, "Carting random size")
+            logger.info(this.instance, "Choosing random size...")
 
             // Filter out OOS sizes
             var newArray = availibility.filter(function (el) {
