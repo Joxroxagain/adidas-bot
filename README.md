@@ -36,7 +36,6 @@ npm install
 
 Then run the following commands to start:
 ```
-
 npm start
 ```
 
@@ -94,7 +93,7 @@ Open the file ```config.json``` and be careful to adhere to the JSON syntax in o
 
 ## TODO 
 - [ ] Checkout success/failure detection
-- [ ] Support for all regions (currently just US)
+- [ ] Support for all regions (currently just US supported)
 
 ## Credits
 [<b>bequadro</b>](https://github.com/bequadro/kju) for some code
