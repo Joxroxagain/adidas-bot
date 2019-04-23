@@ -5,7 +5,6 @@
     "headless": false,
     "headlessAfterSplash": false, 
     "splashCookieKeyword": "hmac",
-    "captchaExpected": true,
     "webdata": {
         "enabled": false,
         "path": ""
@@ -39,7 +38,7 @@
     },
     "retryDelay": 10000,
     "startUpDelayInterval": 10000,
-    "detectionInterval": 100,
+    "detectionInterval": 1000,
     "alerts": true,
     "windowHeight": 800,
     "windowWidth": 800
