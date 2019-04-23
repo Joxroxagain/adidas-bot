@@ -28,9 +28,15 @@ If you want to use the google login feature, use the chrome extension EditThisCo
 
 Edit the config file as you wish.
 
-Then run the following commands to start:
+Install the modules with the following:
+
 ```
 npm install
+```
+
+Then run the following commands to start:
+```
+
 npm start
 ```
 
