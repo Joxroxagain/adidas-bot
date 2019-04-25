@@ -28,9 +28,14 @@ If you want to use the google login feature, use the chrome extension EditThisCo
 
 Edit the config file as you wish.
 
-Then run the following commands to start:
+Install the modules with the following:
+
 ```
 npm install
+```
+
+Then run the following commands to start:
+```
 npm start
 ```
 
@@ -88,7 +93,7 @@ Open the file ```config.json``` and be careful to adhere to the JSON syntax in o
 
 ## TODO 
 - [ ] Checkout success/failure detection
-- [ ] Support for all regions (currently just US)
+- [ ] Support for all regions (currently just US supported)
 
 ## Credits
 [<b>bequadro</b>](https://github.com/bequadro/kju) for some code
