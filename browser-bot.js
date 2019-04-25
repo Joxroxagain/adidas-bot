@@ -4,6 +4,7 @@ const notifier = require('node-notifier');
 const path = require('path');
 const GOOGLE_COOKIES = require('./cookies.json');
 const logger = require('./logger');
+const regions = require('./regions')
 const $ = require('cheerio');
 const querystring = require('querystring');
 const prettier = require('prettier');
@@ -31,16 +32,6 @@ if (config.twocaptcha.enabled)
     );
 
 /*
-* Urls
-* TODO: chamge these to suport other regions
-*/
-const checkoutUrl = 'https://www.adidas.com/on/demandware.store/Sites-adidas-US-Site/en_US/COShipping-Show';
-const paymentUrl = 'https://www.adidas.com/on/demandware.store/Sites-adidas-US-Site/en_US/COSummary2-Start';
-const cartUrl = 'https://www.adidas.com/api/cart_items?sitePath=us';
-const shippingSubmitUrl = 'https://www.adidas.com/on/demandware.store/Sites-adidas-US-Site/en_US/COShipping-Submit';
-const paymentSubmitUrl = 'https://www.adidas.com/on/demandware.store/Sites-adidas-US-Site/en_US/COPayment-HandlePaymentForm';
-
-/*
 * Global Vars
 */
 // Holds url that is first navigated to
@@ -53,16 +44,30 @@ let availibility = [];
 let sizesToCart = [];
 if (config.autoCart.sizes != "any" && config.autoCart.sizes != "")
     sizesToCart = config.autoCart.sizes.split(',');
+// Store region details
+const region = regions.getRegion(config.region)
+
+
+/*
+* Urls
+* TODO: chamge these to suport other regions
+*/
+const checkoutUrl = `https://www.adidas.${region.domain}/on/demandware.store/Sites-adidas-${region.code}-Site/${region.language}_${region.code}/COShipping-Show`;
+const paymentUrl = `https://www.adidas.${region.domain}/on/demandware.store/Sites-adidas-${region.code}-Site/${region.language}_${region.code}/COSummary2-Start`;
+const cartUrl = `https://www.adidas.${region.domain}/api/cart_items?sitePath=${region.code}`;
+const shippingSubmitUrl = `https://www.adidas.${region.domain}/on/demandware.store/Sites-adidas-${region.code}-Site/${region.language}_${region.code}/COShipping-Submit`;
+const paymentSubmitUrl = `https://www.adidas.${region.domain}/on/demandware.store/Sites-adidas-${region.code}-Site/${region.language}_${region.code}/COPayment-HandlePaymentForm`;
+
 
 module.exports = class Bot {
 
-    constructor(i, p) {
+    constructor(options) {
         this.browser = null;
         this.page = null;
         this.captcha = false;
         this.captchaSolution = "";
-        this.instance = i;
-        this.proxy = p;
+        this.instance = options.instance;
+        this.proxy = options.proxy;
     }
 
     async start() {
@@ -141,6 +146,15 @@ module.exports = class Bot {
 
             // Wait for splash page to be found
             const cookie = await this.waitForATC();
+
+            // Look for captchas
+            const cap = await this.findCaptchas();
+
+            // Notify user
+            logger.info(this.instance, `Solving captcha...`);
+            // Solve captcha and set as solution
+            this.captchaSolution =
+                await this.solveCaptchas(cap);
 
             // Log success
             logger.success(this.instance);
@@ -221,6 +235,30 @@ module.exports = class Bot {
             await this.page.goto(config.url, { waitUntil: 'domcontentloaded' });
             // Set base url
             if (baseUrl == null) baseUrl = await this.page.url();
+
+            // Click on page, triggers bmak
+            try {
+                await this.page.click('body')
+            } catch (err) {
+                logger.error(this.instance, `Error clicking on body tag!`)
+            }
+
+            // Send bmak so that we don't get banned on ATC
+            const bmak = await this.page.evaluate(() => {
+                if (typeof bmak.startTracking != "function") return false;
+                bmak.startTracking();
+                return true;
+            });
+
+            // If calling the bmak function fails, manually trigger the function
+            if (!bmak) {
+                // Select the size dropdown
+                try {
+                    await (await this.page.$x("//*[text() = 'Select size']"))[0].click();
+                } catch (err) {
+                    // Not found
+                }
+            }
 
             // If we are looking for captchas
             if (lookForCaptcha) {
@@ -602,21 +640,9 @@ module.exports = class Bot {
     async cartProduct() {
 
         async function cart(sku, size, page, baseUrl, instance, captcha) {
-            // Send bmak so that we don't get banned on ATC
-            const bmak = await page.evaluate(() => {
-                if (typeof bmak.pd != "function") return false;
-                bmak.pd();
-                return true;
-            });
-
-            // If calling the bmak function fails, manually trigger the function
-            if (!bmak) {
-                // Select the size dropdown
-                await (await page.$x("//*[text() = 'Select size']"))[0].click();
-            }
 
             // Need a delay to prevent bans - driven by event handler in the future?
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            // await new Promise(resolve => setTimeout(resolve, 10000));
 
             let response = await page.evaluate(async (cartUrl, baseUrl, sku, PID, size, captcha) => {
                 const res = await fetch(cartUrl, {
@@ -634,7 +660,7 @@ module.exports = class Bot {
                         productId: sku,
                         product_id: PID,
                         product_variation_sku: sku,
-                        quantity: 1, 
+                        quantity: 1,
                         size: size
                     }),
                     "method": "POST",

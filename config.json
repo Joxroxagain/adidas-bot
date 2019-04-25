@@ -1,6 +1,7 @@
 {
     "url": "https://www.adidas.com/us/yeezy",
     "taskCount": 10,
+    "region": "US",
     "splashMode": true,
     "headless": false,
     "headlessAfterSplash": false, 

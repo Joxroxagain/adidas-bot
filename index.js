@@ -107,9 +107,9 @@ async function launchTasks() {
 
     for (let index = 0; index < config.taskCount; index++) {
         if (proxies.length != 0) {
-            bots.push(new Bot(index + 1, proxies[index % proxies.length]));
+            bots.push(new Bot({ instance: index + 1, proxy: [index % proxies.length] }));
         } else {
-            bots.push(new Bot(index + 1));
+            bots.push(new Bot({ instance: index + 1 }));
         }
 
         if (config.webdata.enabled) {
