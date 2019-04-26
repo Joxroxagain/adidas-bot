@@ -48,6 +48,9 @@ Open the file ```config.json``` and be careful to adhere to the JSON syntax in o
 
 **```taskCount```**: The number of browsers that will be launched.
 
+**```region```**: The region that the bot will operate in. Current suported regions are:
+```AU, AT, BE, BR, CA, CN, CZ, DK, FI, FR, DE, IE, IT, MX, NL, NZ, PH, PL, RU, SK, ES, SE, GB, US```
+
 **```splashMode```**: Set to "true" for Yeezy releases and other releases with splash pages. Change to 'false' for all other releases. When enabled, this option makes the browsers wait for a cookie called the 'hmac' which indicates that the add to cart (ATC) page has been reached.
 
 **```headless```**: Enables the use of chrome headless which makes all the browsers invisible until the ATC page is detected. Recomended use to to keep this set to false in case something goes wrong and you need to manually add shoes to cart.
@@ -90,10 +93,10 @@ Open the file ```config.json``` and be careful to adhere to the JSON syntax in o
 - [x] Delay between browser launches
 - [x] Proxies, imported by proxies.txt file in `IP:PORT` format
 - [x] Captcha harvesting with 2captcha
+- [x] Support for all regions
 
 ## TODO 
 - [ ] Checkout success/failure detection
-- [ ] Support for all regions (currently just US supported)
 
 ## Credits
 [<b>bequadro</b>](https://github.com/bequadro/kju) for some code
