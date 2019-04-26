@@ -66,6 +66,7 @@ module.exports = class Bot {
         this.page = null;
         this.captcha = false;
         this.captchaSolution = "";
+
         this.instance = options.instance;
         this.proxy = options.proxy;
     }
@@ -240,7 +241,7 @@ module.exports = class Bot {
             try {
                 await this.page.click('body')
             } catch (err) {
-                logger.error(this.instance, `Error clicking on body tag!`)
+                logger.error(this.instance, `Error clicking on body element!`)
             }
 
             // Send bmak so that we don't get banned on ATC
@@ -331,23 +332,9 @@ module.exports = class Bot {
 
         // Needed to prevent page from idling
         this.page.on('request', request => {
-            // if (matchRule(response.url(), '*google*recaptcha*reload*')) {
-            //     request.respond({
-            //         status: 200,
-            //         contentType: 'application/javascript; charset=utf-8',
-            //         body: ''
-            //     });
-            // } else {
             request.continue();
-            // }
-
         });
 
-
-        // For catching refreshes
-        // this.page.on('domcontentloaded', () => {
-        //     this.findCaptchas();
-        // })
 
     }
 

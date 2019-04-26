@@ -31,5 +31,4 @@ module.exports = {
         return countryTable.filter(o => o.code.toLowerCase() == code.toLowerCase())[0]
     }
 
-
 }
