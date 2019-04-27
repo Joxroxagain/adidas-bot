@@ -1,6 +1,6 @@
 {
   "name": "adidas-bot",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "auto-updater": {
     "repo": "Joxroxagain/adidas-bot",
     "branch": "master"
