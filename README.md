@@ -7,7 +7,7 @@ Launches instances of puppeteer browsers to a specified url and notifies you whe
 
 :white_check_mark: Auto checkout for any shoe besides yeezys
 
-:red_check_mark: Auto checkout for yeezys
+:no_entry: Auto checkout for yeezys
 
 :white_check_mark: Auto carting for non splash shoes
 
