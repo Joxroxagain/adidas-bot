@@ -23,7 +23,7 @@ if (fs.existsSync(".git")) {
     config = require("./config.json");
 }
 
-if (config.twocaptcha.enabled)
+if (config.twocaptcha.enabled && config.twocaptcha.apiKey != "")
     puppeteer.use(
         RecaptchaPlugin({
             provider: { id: '2captcha', token: config.twocaptcha.apiKey },
@@ -404,6 +404,9 @@ module.exports = class Bot {
     // Finds a captcha on the page and returns the object
     async findCaptchas() {
         return new Promise(async (resolve, reject) => {
+
+            if (!config.twocaptcha.enabled || config.twocaptcha.apiKey == "") resolve(false);
+
             try {
                 let { captchas, error } = await this.page.findRecaptchas();
                 if (error != null) {
