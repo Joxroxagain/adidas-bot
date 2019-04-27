@@ -148,18 +148,25 @@ module.exports = class Bot {
             // Wait for splash page to be found
             const cookie = await this.waitForATC();
 
+            logger.info(this.instance, `HMAC Name = ${cookie[0]}, HMAC Value = ${cookie[1]}`);
+
+            logger.info(this.instance, `Looking for captchas...`);
+
             // Look for captchas
             const cap = await this.findCaptchas();
 
             // Notify user
-            logger.info(this.instance, `Solving captcha...`);
-            // Solve captcha and set as solution
-            this.captchaSolution =
-                await this.solveCaptchas(cap);
+            if (cap != false) {
+                logger.info(this.instance, `Solving captcha...`);
+                // Solve captcha and set as solution
+                this.captchaSolution =
+                    await this.solveCaptchas(cap);
+            } else {
+                logger.info(this.instance, `No captcha found.`);
+            }
 
             // Log success
             logger.success(this.instance);
-            logger.info(this.instance, `HMAC Name = ${cookie[0]}, HMAC Value = ${cookie[1]}`);
 
             // Notify user
             if (config.alerts) {
