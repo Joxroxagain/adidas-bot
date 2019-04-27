@@ -148,6 +148,10 @@ module.exports = class Bot {
             // Wait for splash page to be found
             const cookie = await this.waitForATC();
 
+            // Switch to headed browser if needed
+            if (!config.headlessAfterSplash && config.headless)
+                await this.lauchHeadedBrowser(await this.page.cookies());
+
             logger.info(this.instance, `HMAC Name = ${cookie[0]}, HMAC Value = ${cookie[1]}`);
 
             logger.info(this.instance, `Looking for captchas...`);
@@ -182,10 +186,6 @@ module.exports = class Bot {
                     }
                 });
             }
-
-            // Switch to headed browser if needed
-            if (!config.headlessAfterSplash && config.headless)
-                await this.lauchHeadedBrowser(await this.page.cookies());
 
         }
 
