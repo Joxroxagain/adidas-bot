@@ -5,7 +5,7 @@ Launches instances of puppeteer browsers to a specified url and notifies you whe
 ## Status
 :white_check_mark: ATC page detection (Untested for newest splash page versions) 
 
-:white_check_mark: Auto checkout for any shoe besides yeezys
+:no_entry: Auto checkout for any shoe besides yeezys
 
 :no_entry: Auto checkout for yeezys
 
