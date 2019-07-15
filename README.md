@@ -2,19 +2,6 @@
 
 Launches instances of puppeteer browsers to a specified url and notifies you when an adidas cart page is detected.
 
-## Status
-:white_check_mark: ATC page detection (Untested for newest splash page versions) 
-
-:no_entry: Auto checkout for any shoe besides yeezys
-
-:no_entry: Auto checkout for yeezys
-
-:white_check_mark: Auto carting for non splash shoes
-
-:white_check_mark: Auto carting yeezys (Untested for newest splash page versions) 
-
-:white_check_mark: Captcha solving with 2captcha
-
 
 ## Installation
 Install [Node.JS](https://nodejs.org/en/download/) and NPM (NPM is included with Node.JS) 
