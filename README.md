@@ -92,10 +92,5 @@ Open the file ```config.json``` and be careful to adhere to the JSON syntax in o
 ## Credits
 [<b>bequadro</b>](https://github.com/bequadro/kju) for some code
 
-## Contributing or support
-Contact me via 
-- [x] email: jox.rox.js@gmail.com
-- [x] discord: SoFloJoe#4498
-
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
