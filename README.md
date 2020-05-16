@@ -1,3 +1,7 @@
+# STATUS
+:red_circle: No longer working and not supported.
+
+
 # Adidas Bot
 
 Launches instances of puppeteer browsers to a specified url and notifies you when an adidas cart page is detected.
